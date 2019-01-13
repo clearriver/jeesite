@@ -34,7 +34,7 @@ import com.jeesite.common.mybatis.mapper.query.QueryType;
 		@Column(name="office_code",  attrName="office.officeCode", 	 label="机构编码", isQuery=false),
 		@Column(name="office_name",  attrName="office.officeName", 	 label="机构名称", isQuery=false),
 		@Column(name="company_code", attrName="company.companyCode", label="公司编码", isQuery=false),
-		@Column(name="company_name", attrName="company.companyName", label="公司名称", isQuery=false),
+		@Column(name="company_name", attrName="company.companyName", label="公司名称", isQuery=false)
 	}, joinTable={
 		@JoinTable(type=Type.LEFT_JOIN, entity=Office.class, alias="o", 
 			on="o.office_code = a.office_code",
@@ -56,7 +56,6 @@ public class Employee extends DataEntity<Employee> {
 	private String empCode;		// 员工编码
 	private String empName;		// 员工姓名
 	private String empNameEn;	// 员工英文名
-	private String empSex;     // 员工性别  (1: 男; 2: 女 )
 	private String empRecorder;     // 员工性别  (1: 男; 2: 女 ) 
 	private Office office;		// 机构编码
 	private Company company;	// 公司编码

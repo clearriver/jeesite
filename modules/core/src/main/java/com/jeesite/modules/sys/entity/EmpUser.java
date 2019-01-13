@@ -23,6 +23,7 @@ import com.jeesite.common.utils.excel.fieldtype.OfficeType;
  */
 @Table(name="${_prefix}sys_user", alias="a", columns={
 		@Column(includeEntity=User.class),
+		@Column(name="mgr_type", attrName="mgrType", label="管理员类型", isUpdate=true, comment="管理员类型（0非管理员 1系统管理员 2二级管理员）")
 	}, joinTable={
 		@JoinTable(type=Type.JOIN, entity=Employee.class, alias="e",
 			on="e.emp_code=a.ref_code AND a.user_type=#{USER_TYPE_EMPLOYEE}",
