@@ -20,6 +20,7 @@ CREATE TABLE js_biz_place
 	alarm_time datetime COMMENT '报警时间',
 	deal_way varchar(100) COMMENT '处置方式',
 	oos_url varchar(300) COMMENT '报警视频及图像OSS存储URL地址',
+	sign varchar(300) COMMENT '签名',
 	PRIMARY KEY (place_code)
 ) COMMENT = '场所表';
 

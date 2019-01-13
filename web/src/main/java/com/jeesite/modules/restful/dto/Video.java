@@ -1,8 +1,7 @@
 package com.jeesite.modules.restful.dto;
 
 import java.util.Date;
-
-public class Video {
+public class Video{
 	private String palceUuid;
 	private Date createTime;
 	private int typeStatus;

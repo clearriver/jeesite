@@ -39,6 +39,7 @@ import com.jeesite.modules.sys.entity.Office;
 		@Column(name="alarm_time", attrName="alarmTime", label="报警时间"),
 		@Column(name="deal_way", attrName="dealWay", label="处置方式"),
 		@Column(name="oos_url", attrName="oosUrl", label="报警视频及图像OSS存储URL地址"),
+		@Column(name="sign", attrName="sign", label="签名")
 	}, joinTable={
 			@JoinTable(type=Type.LEFT_JOIN, entity=Area.class, alias="o", 
 					on="o.area_code = a.city ",attrName="city",
@@ -66,6 +67,7 @@ public class BizPlace extends DataEntity<BizPlace> {
 	private Date alarmTime;		// 报警时间
 	private String dealWay;		// 处置方式
 	private String oosUrl;		// 报警视频及图像OSS存储URL地址
+	private String sign;		// 签名
 	
 	public BizPlace() {
 		this(null);
@@ -102,7 +104,6 @@ public class BizPlace extends DataEntity<BizPlace> {
 		this.tradeType = tradeType;
 	}
 	
-//	@Length(min=0, max=100, message="所属市长度不能超过 100 个字符")
 	public Area getCity() {
 		return city;
 	}
@@ -110,8 +111,6 @@ public class BizPlace extends DataEntity<BizPlace> {
 	public void setCity(Area city) {
 		this.city = city;
 	}
-	
-//	@Length(min=0, max=100, message="所属县长度不能超过 100 个字符")
 	public Area getArea() {
 		return area;
 	}
@@ -209,5 +208,12 @@ public class BizPlace extends DataEntity<BizPlace> {
 	public void setOosUrl(String oosUrl) {
 		this.oosUrl = oosUrl;
 	}
-	
+
+	public String getSign() {
+		return sign;
+	}
+
+	public void setSign(String sign) {
+		this.sign = sign;
+	}
 }

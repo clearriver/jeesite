@@ -1,9 +1,13 @@
 package com.jeesite.modules.restful.dto;
 
 public class Result {
+	public static String SUCCESS="成功";
+	public static String FAIL="失败";
+	public static int ERR_CODE=10000;
+	public static int SUCCESS_CODE=20000;
 	private boolean success=true;// True ：成功，false 表示失败
-	private int errCode=20000;// 10000 ：标识失败，20000标识成功
-	private String msg="成功";// 信息描述
+	private int errCode=SUCCESS_CODE;// 10000 ：标识失败，20000标识成功
+	private String msg=SUCCESS;// 信息描述
 	private int count;// 成功的数量
 	private Object data;// 成功的数据集合
 
