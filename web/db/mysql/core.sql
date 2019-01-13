@@ -270,6 +270,7 @@ CREATE TABLE js_sys_employee
 	create_date datetime NOT NULL COMMENT '创建时间',
 	update_by varchar(64) NOT NULL COMMENT '更新者',
 	update_date datetime NOT NULL COMMENT '更新时间',
+	emp_recorder varchar(100) COMMENT '执法记录仪领用绑定',
 	remarks varchar(500) COMMENT '备注信息',
 	corp_code varchar(64) DEFAULT '0' NOT NULL COMMENT '租户代码',
 	corp_name varchar(100) DEFAULT 'JeeSite' NOT NULL COMMENT '租户名称',

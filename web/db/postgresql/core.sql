@@ -269,6 +269,7 @@ CREATE TABLE js_sys_employee
 	create_date timestamp NOT NULL,
 	update_by varchar(64) NOT NULL,
 	update_date timestamp NOT NULL,
+	emp_recorder varchar(100),
 	remarks varchar(500),
 	corp_code varchar(64) DEFAULT '0' NOT NULL,
 	corp_name varchar(100) DEFAULT 'JeeSite' NOT NULL,
@@ -1100,6 +1101,7 @@ COMMENT ON COLUMN js_sys_employee.create_by IS '创建者';
 COMMENT ON COLUMN js_sys_employee.create_date IS '创建时间';
 COMMENT ON COLUMN js_sys_employee.update_by IS '更新者';
 COMMENT ON COLUMN js_sys_employee.update_date IS '更新时间';
+COMMENT ON COLUMN js_sys_employee.emp_recorder IS '执法记录仪领用绑定';
 COMMENT ON COLUMN js_sys_employee.remarks IS '备注信息';
 COMMENT ON COLUMN js_sys_employee.corp_code IS '租户代码';
 COMMENT ON COLUMN js_sys_employee.corp_name IS '租户名称';

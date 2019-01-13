@@ -25,6 +25,7 @@
 		<!-- environment setting -->
 		<eclipse-plugin-download-sources>false</eclipse-plugin-download-sources>
 		<eclipse-plugin-download-javadocs>false</eclipse-plugin-download-javadocs>
+		<springfox.version>2.9.2</springfox.version>
 		
 	</properties>
 
@@ -38,10 +39,21 @@
 		</dependency>
 		
 		<!-- 在线API文档 -->
+<!-- 		<dependency> -->
+<!-- 			<groupId>com.jeesite</groupId> -->
+<!-- 			<artifactId>jeesite-module-swagger</artifactId> -->
+<!-- 			<version>${project.parent.version}</version> -->
+<!-- 		</dependency> -->
+
 		<dependency>
-			<groupId>com.jeesite</groupId>
-			<artifactId>jeesite-module-swagger</artifactId>
-			<version>${project.parent.version}</version>
+			<groupId>io.springfox</groupId>
+			<artifactId>springfox-swagger2</artifactId>
+			<version>${springfox.version}</version>
+		</dependency>
+		<dependency>
+			<groupId>io.springfox</groupId>
+			<artifactId>springfox-swagger-ui</artifactId>
+			<version>${springfox.version}</version>
 		</dependency>
 		
 		<!-- Office在线预览 -->
@@ -66,7 +78,6 @@
 			<scope>system</scope>
 			<systemPath>${project.basedir}/src/main/webapp/WEB-INF/lib/test-core-1.0.jar</systemPath>
 		</dependency> -->
-		
 	</dependencies>
 	
 	<build>

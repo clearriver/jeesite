@@ -3,6 +3,8 @@
  */
 package com.jeesite.modules.sys.web;
 
+import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 
@@ -186,9 +188,21 @@ public class AreaController extends BaseController {
 	@RequiresPermissions("user")
 	@RequestMapping(value = "treeData")
 	@ResponseBody
-	public List<Map<String, Object>> treeData(String excludeCode, String isShowCode) {
+	public List<Map<String, Object>> treeData(String excludeCode, String isShowCode,String level) {
 		List<Map<String, Object>> mapList = ListUtils.newArrayList();
 		List<Area> list = AreaUtils.getAreaAllList();
+		if(org.apache.commons.lang3.StringUtils.isNotBlank(level)) {
+			ArrayList<Area> lt=new ArrayList<Area>();
+			lt.addAll(list);
+			int l=Integer.parseInt(level);
+			for(int i=lt.size()-1;i>=0;i--) {
+				Area a=lt.get(i);
+				if(a.getTreeLevel()>l) {
+					lt.remove(a);
+				}
+			}
+			list=lt;
+		}
 		for (int i=0; i<list.size(); i++){
 			Area e = list.get(i);
 			// 过滤非正常的数据

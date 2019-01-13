@@ -112,6 +112,9 @@ $('#dataGrid').dataGrid({
 		}},
 		{header:'${text("用户昵称")}', name:'userName', index:'a.user_name', width:200, align:"center"},
 		{header:'${text("员工姓名")}', name:'refName', index:'a.ref_name', width:200, align:"center"},
+		{header:'${text("性别")}', name:'sex', index:'a.sex', width:200, align:"center",formatter: function(val, obj, row, act){
+			return js.getDictLabel(${@DictUtils.getDictListJson('sys_user_sex')}, val, '', true);
+		}},
 		{header:'${text("归属机构")}', name:'employee.office.officeName', index:'o.office_name', width:200, align:"center"},
 		{header:'${text("归属公司")}', name:'employee.company.companyName', index:'c.company_name', width:200, align:"center"},
 		{header:'${text("电子邮箱")}', name:'email', index:'a.email', width:200, align:"center"},

@@ -1,0 +1,263 @@
+<% layout('/layouts/default.html', {title: '场所表管理', libs: ['validate','fileupload']}){ %>
+<div class="main-content">
+	<div class="box box-main">
+		<div class="box-header with-border">
+			<div class="box-title">
+				<i class="fa fa-list-alt"></i> ${text(bizPlace.isNewRecord ? '新增场所表' : '编辑场所表')}
+			</div>
+			<div class="box-tools pull-right">
+				<button type="button" class="btn btn-box-tool" data-widget="collapse"><i class="fa fa-minus"></i></button>
+			</div>
+		</div>
+		<#form:form id="inputForm" model="${bizPlace}" action="${ctx}/biz/bizPlace/save" method="post" class="form-horizontal">
+			<div class="box-body">
+				<div class="form-unit">${text('基本信息')}</div>
+				<div class="row">
+					<div class="col-xs-6">
+						<div class="form-group">
+							<label class="control-label col-sm-4" title="">
+								<span class="required ">*</span> ${text('许可证号或编号')}：<i class="fa icon-question hide"></i></label>
+							<div class="col-sm-8">
+								<#form:hidden path="isNewRecord"/>
+								<#form:input path="placeCode" maxlength="200" readonly="${!bizPlace.isNewRecord}" class="form-control required"/>
+							</div>
+						</div>
+					</div>
+					<div class="col-xs-6">
+						<div class="form-group">
+							<label class="control-label col-sm-4" title="">
+								<span class="required ">*</span> ${text('主体名称')}：<i class="fa icon-question hide"></i></label>
+							<div class="col-sm-8">
+								<#form:input path="placeName" maxlength="200" class="form-control required"/>
+							</div>
+						</div>
+					</div>
+				</div>
+				<div class="row">
+					<div class="col-xs-6">
+						<div class="form-group">
+							<label class="control-label col-sm-4" title="">
+								<span class="required hide">*</span> ${text('所属市')}：<i class="fa icon-question hide"></i></label>
+							<div class="col-sm-8">
+								<#form:treeselect title="${text('行政区划')}"
+									path="city" labelPath="city.areaName" 
+									url="${ctx}/sys/area/treeData?level=1" class="required" allowClear="true"/>
+							</div>
+						</div>
+					</div>
+					<div class="col-xs-6">
+						<div class="form-group">
+							<label class="control-label col-sm-4" title="">
+								<span class="required hide">*</span> ${text('所属县')}：<i class="fa icon-question hide"></i></label>
+							<div class="col-sm-8">
+								<#form:treeselect title="${text('行政区划')}"
+									path="area" labelPath="area.areaName"  
+									url="${ctx}/sys/area/treeData?level=2" class="required" allowClear="true"/>
+							</div>
+						</div>
+					</div>
+				</div>
+				<div class="row">
+					<div class="col-xs-12">
+						<div class="form-group">
+							<label class="control-label col-sm-2" title="">
+								<span class="required hide">*</span> ${text('详细地址')}：<i class="fa icon-question hide"></i></label>
+							<div class="col-sm-10">
+								<div id="oldstreet" style="display:none">${bizPlace.street}</div>
+								<#form:input path="street" maxlength="300" class="form-control"/>
+							</div>
+						</div>
+					</div>
+				</div>
+				<div class="row">
+					<div class="col-xs-6">
+						<div class="form-group">
+							<label class="control-label col-sm-4" title="">
+								<span class="required hide">*</span> ${text('行业类型')}：<i class="fa icon-question hide"></i></label>
+							<div class="col-sm-8">
+							<#form:select path="tradeType" dictType="sys_biz_trade_type" blankOption="true" class="form-control"/>
+							</div>
+						</div>
+					</div>
+					<div class="col-xs-6">
+						<div class="form-group">
+							<label class="control-label col-sm-4" title="${text('地理坐标')}">
+								<span class="required hide">*</span>${text('地理坐标')}：<i class="fa icon-question hide"></i></label>
+							<div class="col-sm-8">
+								<#form:input path="geoCoordinates" maxlength="100" class="form-control"/>
+							</div>
+						</div>
+					</div>
+				</div>
+				<div class="row">
+					<div class="col-xs-6">
+						<div class="form-group">
+							<label class="control-label col-sm-4" title="">
+								<span class="required hide">*</span> ${text('法定代表人')}：<i class="fa icon-question hide"></i></label>
+							<div class="col-sm-8">
+								<#form:input path="representative" maxlength="200" class="form-control"/>
+							</div>
+						</div>
+					</div>
+					<div class="col-xs-6">
+						<div class="form-group">
+							<label class="control-label col-sm-4" title="">
+								<span class="required hide">*</span> ${text('移动电话')}：<i class="fa icon-question hide"></i></label>
+							<div class="col-sm-8">
+								<#form:input path="phone" maxlength="100" class="form-control"/>
+							</div>
+						</div>
+					</div>
+				</div>
+				<div class="row">
+					<div class="col-xs-6">
+						<div class="form-group">
+							<label class="control-label col-sm-4" title="">
+								<span class="required hide">*</span> ${text('营业状态')}：<i class="fa icon-question hide"></i></label>
+							<div class="col-sm-8">
+							<#form:select path="businessStatus" dictType="sys_biz_status" blankOption="true" class="form-control"/>
+							</div>
+						</div>
+					</div>
+					<div class="col-xs-6">
+						<div class="form-group">
+							<label class="control-label col-sm-4" title="">
+								<span class="required hide">*</span> ${text('实时视频流RTSP地址')}：<i class="fa icon-question hide"></i></label>
+							<div class="col-sm-8">
+								<#form:input path="rtspUrl" maxlength="100" class="form-control"/>
+							</div>
+						</div>
+					</div>
+				</div>
+				<div class="row">
+					<div class="col-xs-6">
+						<div class="form-group">
+							<label class="control-label col-sm-4" title="">
+								<span class="required hide">*</span> ${text('报警类型')}：<i class="fa icon-question hide"></i></label>
+							<div class="col-sm-8">
+							<#form:select path="alarmType" dictType="sys_biz_alarm_type" blankOption="true" class="form-control"/>
+							</div>
+						</div>
+					</div>
+					<div class="col-xs-6">
+						<div class="form-group">
+							<label class="control-label col-sm-4" title="">
+								<span class="required hide">*</span> ${text('报警时间')}：<i class="fa icon-question hide"></i></label>
+							<div class="col-sm-8">
+								<#form:input path="alarmTime" readonly="true" maxlength="20" class="form-control Wdate "
+									dataFormat="datetime" onclick="WdatePicker({dateFmt:'yyyy-MM-dd HH:mm',isShowClear:false});"/>
+							</div>
+						</div>
+					</div>
+				</div>
+				<div class="row">
+					<div class="col-xs-6">
+						<div class="form-group">
+							<label class="control-label col-sm-4" title="">
+								<span class="required hide">*</span> ${text('处置方式')}：<i class="fa icon-question hide"></i></label>
+							<div class="col-sm-8">
+							<#form:select path="dealWay" dictType="sys_biz_deal_way" blankOption="true" class="form-control"/>
+							</div>
+						</div>
+					</div>
+					<div class="col-xs-6">
+						<div class="form-group">
+							<label class="control-label col-sm-4" title="">
+								<span class="required hide">*</span> ${text('报警视频及图像OSS存储URL地址')}：<i class="fa icon-question hide"></i></label>
+							<div class="col-sm-8">
+								<#form:input path="oosUrl" maxlength="300" class="form-control"/>
+							</div>
+						</div>
+					</div>
+				</div>
+				<!-- 
+				<div class="row">
+					<div class="col-xs-12">
+						<div class="form-group">
+							<label class="control-label col-sm-2">${text('图片上传')}：</label>
+							<div class="col-sm-10">
+								<#form:fileupload id="uploadImage" bizKey="${bizPlace.id}" bizType="bizPlace_image"
+									uploadType="image" class="" readonly="false"/>
+							</div>
+						</div>
+					</div>
+				</div>
+				<div class="row">
+					<div class="col-xs-12">
+						<div class="form-group">
+							<label class="control-label col-sm-2">${text('附件上传')}：</label>
+							<div class="col-sm-10">
+								<#form:fileupload id="uploadFile" bizKey="${bizPlace.id}" bizType="bizPlace_file"
+									uploadType="all" class="" readonly="false"/>
+							</div>
+						</div>
+					</div>
+				</div>
+			</div>   
+			-->
+			<div class="box-footer">
+				<div class="row">
+					<div class="col-sm-offset-2 col-sm-10">
+						<% if (hasPermi('biz:bizPlace:edit')){ %>
+							<button type="submit" class="btn btn-sm btn-primary" id="btnSubmit"><i class="fa fa-check"></i> ${text('保 存')}</button>&nbsp;
+						<% } %>
+						<button type="button" class="btn btn-sm btn-default" id="btnCancel" onclick="js.closeCurrentTabPage()"><i class="fa fa-reply-all"></i> ${text('关 闭')}</button>
+					</div>
+				</div>
+			</div>
+		</#form:form>
+	</div>
+</div>
+<% } %>
+<script>
+$("#inputForm").validate({
+	submitHandler: function(form){
+		js.ajaxSubmitForm($(form), function(data){
+			js.showMessage(data.message);
+			if(data.result == Global.TRUE){
+				js.closeCurrentTabPage(function(contentWindow){
+					contentWindow.page();
+				});
+			}
+		}, "json");
+    }
+});
+$("#cityName").change(getGeoCoordinates);
+$("#areaName").change(getGeoCoordinates);
+function getGeoCoordinates(){
+	var cn=$("#cityName").val();
+	var an=$("#areaName").val();
+	var as=$("#street").val();
+	$.ajax({
+	  url: "http://api.map.baidu.com/geocoder/v2/?output=json&ak=${baidu_ak}&address=宁夏回族自治区"+cn+an+as,
+	  data: {},
+	  dataType: "jsonp",
+	  success: function(r){
+		  if(r.result&&r.result.location){
+			  $("#geoCoordinates").val(r.result.location.lng+","+r.result.location.lat);
+		  }
+	  }
+	});
+}
+$("#street").blur(function(){
+	if($("#oldstreet").html()!=$("#street").val()){
+		getGeoCoordinatesForStreet()
+	}
+});
+function getGeoCoordinatesForStreet(){
+	var cn=$("#cityName").val();
+	var an=$("#areaName").val();
+	var as=$("#street").val();
+	$.ajax({
+	  url: "http://api.map.baidu.com/geocoder/v2/?output=json&ak=${baidu_ak}&address=宁夏回族自治区"+cn+an+as,
+	  data: {},
+	  dataType: "jsonp",
+	  success: function(r){
+		  if(r.result&&r.result.location){
+			  $("#geoCoordinates").val(r.result.location.lng+","+r.result.location.lat);
+			  $("#oldstreet").html($("#street").val());
+		  }
+	  }
+	});
+}
+</script>

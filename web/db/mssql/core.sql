@@ -269,6 +269,7 @@ CREATE TABLE [js_sys_employee]
 	[create_date] datetime NOT NULL,
 	[update_by] varchar(64) NOT NULL,
 	[update_date] datetime NOT NULL,
+	[emp_recorder] nvarchar(100),
 	[remarks] nvarchar(500),
 	[corp_code] varchar(64) DEFAULT '0' NOT NULL,
 	[corp_name] nvarchar(100) DEFAULT 'JeeSite' NOT NULL,
