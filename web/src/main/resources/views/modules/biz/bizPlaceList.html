@@ -82,28 +82,25 @@
 						<#form:input path="rtspUrl" maxlength="100" class="form-control width-120"/>
 					</div>
 				</div>
-				 -->
+				 
 				<div class="form-group">
 					<label class="control-label">${text('报警类型')}：</label>
 					<div class="control-inline width-90">
 						<#form:select path="alarmType" dictType="sys_biz_alarm_type" blankOption="true" class="form-control"/>
 					</div>
 				</div>
-				<!-- 
 				<div class="form-group">
 					<label class="control-label">${text('报警时间')}：</label>
 					<div class="control-inline">
 						<#form:input path="alarmTime" class="form-control width-120"/>
 					</div>
 				</div>
-				 -->
 				<div class="form-group">
 					<label class="control-label">${text('处置方式')}：</label>
 					<div class="control-inline width-90">
 						<#form:select path="dealWay" dictType="sys_biz_deal_way" blankOption="true" class="form-control"/>
 					</div>
 				</div>
-				<!-- 
 				<div class="form-group">
 					<label class="control-label">${text('报警视频及图像OSS存储URL地址')}：</label>
 					<div class="control-inline">
@@ -136,12 +133,15 @@ $('#dataGrid').dataGrid({
 		{header:'${text("所属市")}', name:'city.areaName', index:'a.city', width:150, align:"left"},
 		{header:'${text("所属县")}', name:'area.areaName', index:'a.area', width:150, align:"left"},
 		{header:'${text("详细地址")}', name:'street', index:'a.street', width:150, align:"left"},
+		/*
 		{header:'${text("地理坐标")}', name:'geoCoordinates', index:'a.geo_coordinates', width:150, align:"left"},
+		*/
 		{header:'${text("法定代表人")}', name:'representative', index:'a.representative', width:150, align:"left"},
 		{header:'${text("移动电话")}', name:'phone', index:'a.phone', width:150, align:"left"},
 		{header:'${text("营业状态")}', name:'businessStatus', index:'a.business_status', width:150, align:"left",formatter: function(val, obj, row, act){
 			return js.getDictLabel(${@DictUtils.getDictListJson('sys_biz_status')}, val, '', true);
 		}},
+		/*
 		{header:'${text("实时视频流RTSP地址")}', name:'rtspUrl', index:'a.rtsp_url', width:150, align:"left"},
 		{header:'${text("报警类型")}', name:'alarmType', index:'a.alarm_type', width:150, align:"left",formatter: function(val, obj, row, act){
 			return js.getDictLabel(${@DictUtils.getDictListJson('sys_biz_alarm_type')}, val, '', true);
@@ -151,6 +151,7 @@ $('#dataGrid').dataGrid({
 			return js.getDictLabel(${@DictUtils.getDictListJson('sys_biz_deal_way')}, val, '', true);
 		}},
 		{header:'${text("报警视频及图像OSS存储URL地址")}', name:'oosUrl', index:'a.oos_url', width:150, align:"left"},
+		*/
 		{header:'${text("操作")}', name:'actions', width:120, sortable:false, title:false, formatter: function(val, obj, row, act){
 			var actions = [];
 			<% if(hasPermi('biz:bizPlace:edit')){ %>

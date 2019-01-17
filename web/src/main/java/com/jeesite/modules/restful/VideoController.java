@@ -54,7 +54,7 @@ public class VideoController{
 	public ResponseEntity<Result> updateVideo(
 			@ApiParam(value = "签名", required = true) @RequestParam(value = "sign")String sign,
 			@ApiParam(value = "时间戳( yyyy-MM-dd HH:mm:ss)", required = true) @RequestParam(value = "noncestr")String noncestr,
-			@ApiParam(value = "视频场所编号", required = true) @RequestParam(value = "palceNo")String palceNo,
+			@ApiParam(value = "视频场所编号", required = true) @RequestParam(value = "place")String place,
 			@ApiParam(value = "异常视频的url", required = true) @RequestParam(value = "url")String url,
 			@ApiParam(value = "报警抓图(（逗号），分隔拼接)", required = true) @RequestParam(value = "lookImg")String lookImg,
 			@ApiParam(value = "报警的类型状态1：未成年 2: 图像丢失 3：烟雾 4：火焰", required = true,defaultValue="1") @RequestParam(value = "typeStatus")String typeStatus) {
@@ -65,12 +65,11 @@ public class VideoController{
 			dt=sdf.parse(noncestr);
 		} catch (ParseException e) {
 			r.setSuccess(false);
-			r.setCount(0);
 			r.setErrCode(Result.ERR_CODE);
 			r.setMsg("日期格式不对");
 		}
 		if(r.isSuccess()) {
-			BizPlace bp=bizPlaceService.get(palceNo);
+			BizPlace bp=bizPlaceService.get(place);
 			if(bp!=null) {
 				bp.setSign(sign);
 				bp.setAlarmTime(dt);
@@ -81,14 +80,12 @@ public class VideoController{
 					bizPlaceService.save(bp);
 				} catch (Exception e) {
 					r.setSuccess(false);
-					r.setCount(0);
 					r.setErrCode(Result.ERR_CODE);
 					r.setMsg("保存失败");
 					e.printStackTrace();
 				}
 			}else {
 				r.setSuccess(false);
-				r.setCount(0);
 				r.setErrCode(Result.ERR_CODE);
 				r.setMsg("视频场所编号不存在");
 			}
@@ -105,13 +102,69 @@ public class VideoController{
 		} catch (Exception e) {
 			r.setSuccess(false);
 			r.setData(bizPlace);
-			r.setCount(0);
 			r.setMsg(Result.FAIL);
 			r.setErrCode(Result.ERR_CODE);
 			
 			e.printStackTrace();
 		}
 		r.setData(bizPlace);
+		return new ResponseEntity<Result>(r, HttpStatus.OK);
+	}
+	@RequestMapping(value = {"/rtsp"},method = RequestMethod.POST,produces = MediaType.APPLICATION_JSON_UTF8_VALUE)
+	public ResponseEntity<Result> saveRtsp(
+			@ApiParam(value = "视频场所编号", required = true) @RequestParam(value = "place")String place,
+			@ApiParam(value = "视频场所编号", required = true) @RequestParam(value = "rtsp")String rtspUrl) {
+		Result r=new Result();
+		try {
+			if(StringUtils.isNotBlank(place)) {
+				BizPlace bizPlace=bizPlaceService.get(place);
+				if(bizPlace!=null) {
+					bizPlace.setRtspUrl(rtspUrl);
+					bizPlaceService.save(bizPlace);
+				}else{
+					r.setSuccess(false);
+					r.setMsg("视频场所编号不存在.");
+					r.setErrCode(Result.ERR_CODE);
+				}
+			}else{
+				r.setSuccess(false);
+				r.setMsg(Result.FAIL);
+				r.setErrCode(Result.ERR_CODE);
+			}
+		} catch (Exception e) {
+			r.setSuccess(false);
+			r.setMsg(Result.FAIL);
+			r.setErrCode(Result.ERR_CODE);
+			e.printStackTrace();
+		}
+		return new ResponseEntity<Result>(r, HttpStatus.OK);
+	}
+	@RequestMapping(value = {"/rtsp"},method = RequestMethod.DELETE,produces = MediaType.APPLICATION_JSON_UTF8_VALUE)
+	public ResponseEntity<Result> deleteRtsp(
+			@ApiParam(value = "视频场所编号", required = true) @RequestParam(value = "place")String place) {
+		Result r=new Result();
+		try {
+			if(StringUtils.isNotBlank(place)) {
+				BizPlace bizPlace=bizPlaceService.get(place);
+				if(bizPlace!=null) {
+					bizPlace.setRtspUrl(null);
+					bizPlaceService.save(bizPlace);
+				}else{
+					r.setSuccess(false);
+					r.setMsg("视频场所编号不存在.");
+					r.setErrCode(Result.ERR_CODE);
+				}
+			}else{
+				r.setSuccess(false);
+				r.setMsg(Result.FAIL);
+				r.setErrCode(Result.ERR_CODE);
+			}
+		} catch (Exception e) {
+			r.setSuccess(false);
+			r.setMsg(Result.FAIL);
+			r.setErrCode(Result.ERR_CODE);
+			e.printStackTrace();
+		}
 		return new ResponseEntity<Result>(r, HttpStatus.OK);
 	}
 	@RequestMapping(value = {"/{place}"},method = RequestMethod.GET,produces = MediaType.APPLICATION_JSON_UTF8_VALUE)
@@ -128,7 +181,6 @@ public class VideoController{
 		}
 		if(r.getData()==null) {
 			r.setSuccess(false);
-			r.setCount(0);
 			r.setErrCode(Result.ERR_CODE);
 			r.setMsg(Result.FAIL);
 		}

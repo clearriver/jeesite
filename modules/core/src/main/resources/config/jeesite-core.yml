@@ -352,9 +352,9 @@ shiro:
     /static/** = anon
     /userfiles/** = anon
     /druid/** = perms[sys:state:druid]
-    /v2/api-docs = perms[sys:swagger]
-    /swagger-ui.html = perms[sys:swagger]
-    /swagger-resources/** = perms[sys:swagger]
+    /v2/api-docs = anon
+    /swagger-ui.html = anon
+    /swagger-resources/** = anon
     ${adminPath}/login-cas = cas
     ${adminPath}/login = authc
     ${adminPath}/logout = logout
@@ -366,7 +366,12 @@ shiro:
     ${adminPath}/cms/category/* = perms[cms:category:view]
     ${adminPath}/cms/article/* = perms[cms:article:view]
     ${adminPath}/cms/link/* = perms[cms:link:view]
-  
+      
+#    /v2/api-docs = perms[sys:swagger]
+#    /swagger-ui.html = perms[sys:swagger]
+#    /swagger-resources/** = perms[sys:swagger]
+
+
 # Session 相关
 session:
 

@@ -8,7 +8,6 @@ public class Result {
 	private boolean success=true;// True ：成功，false 表示失败
 	private int errCode=SUCCESS_CODE;// 10000 ：标识失败，20000标识成功
 	private String msg=SUCCESS;// 信息描述
-	private int count;// 成功的数量
 	private Object data;// 成功的数据集合
 
 	public boolean isSuccess() {
@@ -33,14 +32,6 @@ public class Result {
 
 	public void setMsg(String msg) {
 		this.msg = msg;
-	}
-
-	public int getCount() {
-		return count;
-	}
-
-	public void setCount(int count) {
-		this.count = count;
 	}
 
 	public Object getData() {

@@ -110,7 +110,7 @@ public class Employee extends DataEntity<Employee> {
 		this.office = office;
 	}
 
-	@NotNull(message="归属公司不能为空")
+//	@NotNull(message="归属公司不能为空")
 	public Company getCompany() {
 		if (company == null){
 			company = new Company();

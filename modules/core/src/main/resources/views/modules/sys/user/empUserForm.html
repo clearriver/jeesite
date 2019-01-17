@@ -29,6 +29,7 @@
 							</div>
 						</div>
 					</div>
+					<!-- 
 					<div class="col-xs-6">
 						<div class="form-group">
 							<label class="control-label col-sm-4" title="">
@@ -37,6 +38,16 @@
 								<#form:treeselect id="company" title="${text('公司选择')}"
 									path="employee.company.companyCode" labelPath="employee.company.companyName" 
 									url="${ctx}/sys/company/treeData?ctrlPermi=2" btnClass="" allowClear="true"/>
+							</div>
+						</div>
+					</div>
+					 -->
+					<div class="col-xs-6">
+						<div class="form-group">
+							<label class="control-label col-sm-4" title="">
+								<span class="required ">*</span> ${text('用户昵称')}：<i class="fa icon-question hide"></i></label>
+							<div class="col-sm-8">
+								<#form:input path="userName" maxlength="32" readonly="${op=='auth'}" class="form-control required "/>
 							</div>
 						</div>
 					</div>
@@ -70,24 +81,12 @@
 					<div class="col-xs-6">
 						<div class="form-group">
 							<label class="control-label col-sm-4" title="">
-								<span class="required ">*</span> ${text('用户昵称')}：<i class="fa icon-question hide"></i></label>
-							<div class="col-sm-8">
-								<#form:input path="userName" maxlength="32" readonly="${op=='auth'}" class="form-control required "/>
-							</div>
-						</div>
-					</div>
-					<div class="col-xs-6">
-						<div class="form-group">
-							<label class="control-label col-sm-4" title="">
 								<span class="required hide">*</span> ${text('执法证号或身份证号')}：<i class="fa icon-question hide"></i></label>
 							<div class="col-sm-8">
 								<#form:input path="userName1" maxlength="32" readonly="${op=='auth'}" class="form-control "/>
 							</div>
 						</div>
 					</div>
-				</div>
-				<% if(op == 'add' || op == 'edit') { %>
-				<div class="row">
 					<div class="col-xs-6">
 						<div class="form-group">
 							<label class="control-label col-sm-4" title="">
@@ -100,6 +99,9 @@
 							</div>
 						</div>
 					</div>
+				</div>
+				<% if(op == 'add' || op == 'edit') { %>
+				<div class="row">
 					<div class="col-xs-6">
 						<div class="form-group">
 							<label class="control-label col-sm-4" title="">
@@ -112,8 +114,6 @@
 							</div>
 						</div>
 					</div>
-				</div>
-				<div class="row">
 					<div class="col-xs-6">
 						<div class="form-group">
 							<label class="control-label col-sm-4" title="">
@@ -126,6 +126,8 @@
 							</div>
 						</div>
 					</div>
+				</div>
+				<div class="row">
 					<div class="col-xs-6">
 						<div class="form-group">
 							<label class="control-label col-sm-4" title="">
