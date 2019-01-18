@@ -198,6 +198,18 @@ public class ExcelExport implements Closeable{
 	 */
 	public void createSheet(String sheetName, String title, Class<?> cls, Type type, String... groups){
 		this.annotationList = ListUtils.newArrayList();
+		// Get annotation class
+		ExcelFields efes=cls.getAnnotation(ExcelFields.class);
+		if(efes!=null&&efes.value()!=null) {
+			for (ExcelField ef : efes.value()){
+				try {
+					String attrName=ef.attrName().contains(".")?ef.attrName().substring(0,ef.attrName().indexOf(".")):ef.attrName();
+					addAnnotation(annotationList, ef,cls.getDeclaredField(attrName), type, groups);
+				}catch (Exception e) {
+					e.printStackTrace();
+				}
+			}
+		}
 		// Get annotation field
 		Field[] fs = cls.getDeclaredFields();
 		for (Field f : fs){
@@ -440,8 +452,12 @@ public class ExcelExport implements Closeable{
 			if(val == null){
 				cell.setCellValue("");
 			}else if(fieldType != Class.class){
-				fieldTypes.add(fieldType); // 先存起来，方便完成后清理缓存
-				cell.setCellValue((String)fieldType.getMethod("setValue", Object.class).invoke(null, val));
+				if(val instanceof String) {
+					cell.setCellValue((String)val);
+				}else {
+					fieldTypes.add(fieldType); // 先存起来，方便完成后清理缓存
+					cell.setCellValue((String)fieldType.getMethod("setValue", Object.class).invoke(null, val));
+				}
 				try{
 					defaultDataFormat = (String)fieldType.getMethod("getDataFormat").invoke(null);
 				} catch (Exception ex) {

@@ -349,6 +349,18 @@ public class ExcelImport implements Closeable {
 	 */
 	public <E> List<E> getDataList(Class<E> cls, MethodCallback exceptionCallback, String... groups) throws InstantiationException, IllegalAccessException{
 		List<Object[]> annotationList = ListUtils.newArrayList();
+		// Get annotation class
+		ExcelFields efes=cls.getAnnotation(ExcelFields.class);
+		if(efes!=null&&efes.value()!=null) {
+			for (ExcelField ef : efes.value()){
+				try {
+					String attrName=ef.attrName().contains(".")?ef.attrName().substring(0,ef.attrName().indexOf(".")):ef.attrName();
+					addAnnotation(annotationList, ef,cls.getDeclaredField(attrName),Type.IMPORT, groups);
+				}catch (Exception e) {
+					e.printStackTrace();
+				}
+			}
+		}
 		// Get annotation field 
 		Field[] fs = cls.getDeclaredFields();
 		for (Field f : fs){
@@ -474,7 +486,9 @@ public class ExcelImport implements Closeable {
 					}
 					// set entity value
 					if (StringUtils.isNotBlank(ef.attrName())){
-						ReflectUtils.invokeSetter(e, ef.attrName(), val);
+//						ReflectUtils.invokeSetter(e, ef.attrName(), val);
+						String attrName=ef.attrName().contains(".")?ef.attrName().substring(0,ef.attrName().indexOf(".")):ef.attrName();
+						ReflectUtils.invokeSetter(e,attrName, val);
 					}else{
 						if (os[1] instanceof Field){
 							ReflectUtils.invokeSetter(e, ((Field)os[1]).getName(), val);

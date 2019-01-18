@@ -3,10 +3,13 @@
  */
 package com.jeesite.modules.biz.web;
 
+import java.util.List;
+
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
 import org.apache.shiro.authz.annotation.RequiresPermissions;
+import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
@@ -15,15 +18,23 @@ import org.springframework.web.bind.annotation.ModelAttribute;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.ResponseBody;
+import org.springframework.web.multipart.MultipartFile;
 
+import com.jeesite.common.collect.ListUtils;
 import com.jeesite.common.config.Global;
 import com.jeesite.common.entity.Page;
+import com.jeesite.common.lang.DateUtils;
+import com.jeesite.common.utils.excel.ExcelExport;
+import com.jeesite.common.utils.excel.annotation.ExcelField.Type;
 import com.jeesite.common.web.BaseController;
 import com.jeesite.modules.biz.entity.BizPlace;
 import com.jeesite.modules.biz.service.BizPlaceService;
 import com.jeesite.modules.sys.entity.Config;
+import com.jeesite.modules.sys.entity.EmpUser;
+import com.jeesite.modules.sys.entity.User;
 import com.jeesite.modules.sys.service.ConfigService;
 import com.jeesite.modules.sys.utils.ConfigUtils;
+import com.jeesite.modules.sys.utils.UserUtils;
 
 /**
  * 场所表Controller
@@ -125,5 +136,51 @@ public class BizPlaceController extends BaseController {
 		bizPlaceService.delete(bizPlace);
 		return renderResult(Global.TRUE, text("删除场所表成功！"));
 	}
-	
+
+	/**
+	 * 下载导入场所数据模板
+	 */
+	@RequiresPermissions("biz:bizPlace:view")
+	@RequestMapping(value = "importTemplate")
+	public void importTemplate(HttpServletResponse response) {
+		BizPlace bizPlace = new BizPlace();
+		List<BizPlace> list = ListUtils.newArrayList(bizPlace);
+		String fileName = "场所数据模板.xlsx";
+		try(ExcelExport ee = new ExcelExport("智能视频监管系统各场所单位相关信息字段表", EmpUser.class, Type.IMPORT)){
+			ee.setDataList(list).write(response, fileName);
+		}
+	}
+	/**
+	 * 导入场所数据
+	 */
+	@ResponseBody
+	@RequiresPermissions("biz:bizPlace:edit")
+	@PostMapping(value = "importData")
+	public String importData(MultipartFile file, String updateSupport) {
+		try {
+			boolean isUpdateSupport = Global.YES.equals(updateSupport);
+			String message = bizPlaceService.importData(file, isUpdateSupport);
+			return renderResult(Global.TRUE, "posfull:"+message);
+		} catch (Exception ex) {
+			return renderResult(Global.FALSE, "posfull:"+ex.getMessage());
+		}
+	}
+	/**
+	 * 导出场所数据
+	 */
+	@RequiresPermissions("biz:bizPlace:view")
+	@RequestMapping(value = "exportData")
+	public void exportData(BizPlace bizPlace, Boolean isAll, String ctrlPermi, HttpServletResponse response) {
+//		bizPlace.getCity().setIsQueryChildren(true);
+//		bizPlace.getArea().setIsQueryChildren(true);
+//		if (!(isAll != null && isAll)){
+//			bizPlaceService.addDataScopeFilter(bizPlace, ctrlPermi);
+//		}
+		List<BizPlace> list = bizPlaceService.findList(bizPlace);
+		String fileName = "场所数据" + DateUtils.getDate("yyyyMMddHHmmss") + ".xlsx";
+		try(ExcelExport ee = new ExcelExport("智能视频监管系统各场所单位相关信息字段表", BizPlace.class)){
+			ee.setDataList(list).write(response, fileName);
+		}
+	}
+
 }

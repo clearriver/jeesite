@@ -3,6 +3,7 @@
  */
 package com.jeesite.modules.biz.entity;
 
+import javax.validation.Valid;
 import javax.validation.constraints.NotBlank;
 import org.hibernate.validator.constraints.Length;
 import java.util.Date;
@@ -14,6 +15,12 @@ import com.jeesite.common.entity.DataEntity;
 import com.jeesite.common.mybatis.annotation.Column;
 import com.jeesite.common.mybatis.annotation.Table;
 import com.jeesite.common.mybatis.mapper.query.QueryType;
+import com.jeesite.common.utils.excel.annotation.ExcelField;
+import com.jeesite.common.utils.excel.annotation.ExcelFields;
+import com.jeesite.common.utils.excel.annotation.ExcelField.Align;
+import com.jeesite.common.utils.excel.fieldtype.AreaType;
+import com.jeesite.common.utils.excel.fieldtype.CompanyType;
+import com.jeesite.common.utils.excel.fieldtype.OfficeType;
 import com.jeesite.modules.sys.entity.Area;
 import com.jeesite.modules.sys.entity.Company;
 import com.jeesite.modules.sys.entity.Office;
@@ -49,6 +56,20 @@ import com.jeesite.modules.sys.entity.Office;
 			columns={@Column(includeEntity=Area.class)}),
 	}, orderBy="a.place_code DESC"
 )
+
+@Valid
+@ExcelFields({
+	@ExcelField(title="行业类型", attrName="tradeType", align=Align.CENTER, sort=10,dictType="sys_biz_trade_type"),
+	@ExcelField(title="许可证号或编号", attrName="placeCode", align=Align.CENTER, sort=20),
+	@ExcelField(title="主体名称", attrName="placeName", align = Align.CENTER, sort=30),
+	@ExcelField(title="所属市", attrName="city.areaName", align=Align.CENTER, sort=40, fieldType=AreaType.class),
+	@ExcelField(title="所属县（区）", attrName="area.areaName", align=Align.CENTER, sort=50, fieldType=AreaType.class),
+	@ExcelField(title="详细地址", attrName="street", align=Align.CENTER, sort=60),
+	@ExcelField(title="地理坐标", attrName="geoCoordinates", align=Align.CENTER, sort=70),
+	@ExcelField(title="法定代表人（主要负责人）", attrName="representative", align=Align.CENTER, sort=80),
+	@ExcelField(title="移动电话", attrName="phone", align=Align.CENTER, sort=90),
+	@ExcelField(title="营业状态", attrName="businessStatus", align=Align.CENTER, sort=100,dictType="sys_biz_status", type=ExcelField.Type.ALL),
+})
 public class BizPlace extends DataEntity<BizPlace> {
 	
 	private static final long serialVersionUID = 1L;
