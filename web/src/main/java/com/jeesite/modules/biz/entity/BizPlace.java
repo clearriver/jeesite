@@ -3,27 +3,26 @@
  */
 package com.jeesite.modules.biz.entity;
 
+import java.util.List;
+
 import javax.validation.Valid;
 import javax.validation.constraints.NotBlank;
+
 import org.hibernate.validator.constraints.Length;
-import java.util.Date;
+
+import com.jeesite.common.collect.ListUtils;
+import com.jeesite.common.entity.DataEntity;
+import com.jeesite.common.lang.StringUtils;
+import com.jeesite.common.mybatis.annotation.Column;
 import com.jeesite.common.mybatis.annotation.JoinTable;
 import com.jeesite.common.mybatis.annotation.JoinTable.Type;
-import com.fasterxml.jackson.annotation.JsonFormat;
-
-import com.jeesite.common.entity.DataEntity;
-import com.jeesite.common.mybatis.annotation.Column;
 import com.jeesite.common.mybatis.annotation.Table;
 import com.jeesite.common.mybatis.mapper.query.QueryType;
 import com.jeesite.common.utils.excel.annotation.ExcelField;
-import com.jeesite.common.utils.excel.annotation.ExcelFields;
 import com.jeesite.common.utils.excel.annotation.ExcelField.Align;
+import com.jeesite.common.utils.excel.annotation.ExcelFields;
 import com.jeesite.common.utils.excel.fieldtype.AreaType;
-import com.jeesite.common.utils.excel.fieldtype.CompanyType;
-import com.jeesite.common.utils.excel.fieldtype.OfficeType;
 import com.jeesite.modules.sys.entity.Area;
-import com.jeesite.modules.sys.entity.Company;
-import com.jeesite.modules.sys.entity.Office;
 
 /**
  * 场所表Entity
@@ -41,12 +40,7 @@ import com.jeesite.modules.sys.entity.Office;
 		@Column(name="representative", attrName="representative", label="法定代表人", comment="法定代表人（主要负责人）"),
 		@Column(name="phone", attrName="phone", label="移动电话"),
 		@Column(name="business_status", attrName="businessStatus", label="营业状态"),
-		@Column(name="rtsp_url", attrName="rtspUrl", label="实时视频流RTSP地址"),
-		@Column(name="alarm_type", attrName="alarmType", label="报警类型"),
-		@Column(name="alarm_time", attrName="alarmTime", label="报警时间"),
-		@Column(name="deal_way", attrName="dealWay", label="处置方式"),
-		@Column(name="oos_url", attrName="oosUrl", label="报警视频及图像OSS存储URL地址"),
-		@Column(name="sign", attrName="sign", label="签名")
+		@Column(name="rtsp_url", attrName="rtspUrl", label="实时视频流RTSP地址")
 	}, joinTable={
 			@JoinTable(type=Type.LEFT_JOIN, entity=Area.class, alias="o", 
 					on="o.area_code = a.city ",attrName="city",
@@ -65,7 +59,7 @@ import com.jeesite.modules.sys.entity.Office;
 	@ExcelField(title="所属市", attrName="city.areaName", align=Align.CENTER, sort=40, fieldType=AreaType.class),
 	@ExcelField(title="所属县（区）", attrName="area.areaName", align=Align.CENTER, sort=50, fieldType=AreaType.class),
 	@ExcelField(title="详细地址", attrName="street", align=Align.CENTER, sort=60),
-	@ExcelField(title="地理坐标", attrName="geoCoordinates", align=Align.CENTER, sort=70),
+//	@ExcelField(title="地理坐标", attrName="geoCoordinates", align=Align.CENTER, sort=70,type=ExcelField.Type.EXPORT),
 	@ExcelField(title="法定代表人（主要负责人）", attrName="representative", align=Align.CENTER, sort=80),
 	@ExcelField(title="移动电话", attrName="phone", align=Align.CENTER, sort=90),
 	@ExcelField(title="营业状态", attrName="businessStatus", align=Align.CENTER, sort=100,dictType="sys_biz_status", type=ExcelField.Type.ALL),
@@ -84,12 +78,30 @@ public class BizPlace extends DataEntity<BizPlace> {
 	private String phone;		// 移动电话
 	private String businessStatus;		// 营业状态
 	private String rtspUrl;		// 实时视频流RTSP地址
-	private String alarmType;		// 报警类型
-	private Date alarmTime;		// 报警时间
-	private String dealWay;		// 处置方式
-	private String oosUrl;		// 报警视频及图像OSS存储URL地址
-	private String sign;		// 签名
-	
+
+	private List<BizAlarm> bizAlarmList = ListUtils.newArrayList(); // 关联报警信息
+	public List<BizAlarm> getBizAlarmList() {
+		return bizAlarmList;
+	}
+
+	public void setBizAlarmList(List<BizAlarm> bizAlarmList) {
+		this.bizAlarmList = bizAlarmList;
+	}
+
+	public String[] getBizAlarms() {
+		List<String> list = ListUtils.extractToList(bizAlarmList, "alarmCode");
+		return list.toArray(new String[list.size()]);
+	}
+
+	public void setBizAlarms(String[] bizAlarms) {
+		for (String val : bizAlarms){
+			if (StringUtils.isNotBlank(val)){
+				BizAlarm e = new BizAlarm();
+				e.setAlarmCode(val);
+				this.bizAlarmList.add(e);
+			}
+		}
+	}
 	public BizPlace() {
 		this(null);
 	}
@@ -184,7 +196,7 @@ public class BizPlace extends DataEntity<BizPlace> {
 	public void setBusinessStatus(String businessStatus) {
 		this.businessStatus = businessStatus;
 	}
-	
+
 	@Length(min=0, max=100, message="实时视频流RTSP地址长度不能超过 100 个字符")
 	public String getRtspUrl() {
 		return rtspUrl;
@@ -192,49 +204,5 @@ public class BizPlace extends DataEntity<BizPlace> {
 
 	public void setRtspUrl(String rtspUrl) {
 		this.rtspUrl = rtspUrl;
-	}
-	
-	@Length(min=0, max=100, message="报警类型长度不能超过 100 个字符")
-	public String getAlarmType() {
-		return alarmType;
-	}
-
-	public void setAlarmType(String alarmType) {
-		this.alarmType = alarmType;
-	}
-	
-	@JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss")
-	public Date getAlarmTime() {
-		return alarmTime;
-	}
-
-	public void setAlarmTime(Date alarmTime) {
-		this.alarmTime = alarmTime;
-	}
-	
-	@Length(min=0, max=100, message="处置方式长度不能超过 100 个字符")
-	public String getDealWay() {
-		return dealWay;
-	}
-
-	public void setDealWay(String dealWay) {
-		this.dealWay = dealWay;
-	}
-	
-	@Length(min=0, max=300, message="报警视频及图像OSS存储URL地址长度不能超过 300 个字符")
-	public String getOosUrl() {
-		return oosUrl;
-	}
-
-	public void setOosUrl(String oosUrl) {
-		this.oosUrl = oosUrl;
-	}
-
-	public String getSign() {
-		return sign;
-	}
-
-	public void setSign(String sign) {
-		this.sign = sign;
 	}
 }

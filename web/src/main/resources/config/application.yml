@@ -37,9 +37,9 @@ jdbc:
   type: mysql
   driver: com.mysql.jdbc.Driver
 
-#  url: jdbc:mysql://192.168.128.128:3306/jeesite?useSSL=false&useUnicode=true&characterEncoding=utf-8&zeroDateTimeBehavior=convertToNull
-#  username: jeesite
-#  password: jeesite
+  url: jdbc:mysql://192.168.128.128:3306/jeesite?useSSL=false&useUnicode=true&characterEncoding=utf-8&zeroDateTimeBehavior=convertToNull
+  username: jeesite
+  password: jeesite
   
 #  url: jdbc:mysql://rm-a7l5h9m143jd8og47.mysql.rds.zw-ops.nxcloud.com.cn:3306/nxwh?useSSL=false&useUnicode=true&characterEncoding=utf-8&zeroDateTimeBehavior=convertToNull
 #  username: nxwh

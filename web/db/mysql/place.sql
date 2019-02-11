@@ -27,3 +27,20 @@ CREATE TABLE js_biz_place
 
 /* Create Indexes */
 CREATE INDEX idx_biz_place_pn ON js_biz_place (place_name ASC);
+
+CREATE TABLE `js_biz_alarm` (
+  `place_code` varchar(100) COLLATE utf8mb4_unicode_ci NOT NULL COMMENT '许可证号或编号',
+  `alarm_code` varchar(200) COLLATE utf8mb4_unicode_ci NOT NULL COMMENT '编号',
+  `alarm_type` varchar(100) COLLATE utf8mb4_unicode_ci DEFAULT NULL COMMENT '报警类型',
+  `alarm_time` datetime DEFAULT NULL COMMENT '报警时间',
+  `deal_way` varchar(100) COLLATE utf8mb4_unicode_ci DEFAULT NULL COMMENT '处置方式',
+  `oos_url` varchar(300) COLLATE utf8mb4_unicode_ci DEFAULT NULL COMMENT '报警视频及图像OSS存储URL地址',
+  `video_url` varchar(300) COLLATE utf8mb4_unicode_ci DEFAULT NULL COMMENT '报警视频及图像URL地址',
+  `sign` varchar(300) COLLATE utf8mb4_unicode_ci DEFAULT NULL COMMENT '签名',
+  `deal_result` varchar(300) COLLATE utf8mb4_unicode_ci DEFAULT NULL COMMENT '签名',
+  PRIMARY KEY (`alarm_code`),
+  KEY `idx_biz_alarm_pn` (`place_code`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci ROW_FORMAT=DYNAMIC COMMENT='报警表';
+
+
+

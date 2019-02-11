@@ -115,13 +115,13 @@ public class EmpUser extends User {
 	@Valid
 	@ExcelFields({
 		@ExcelField(title="归属机构", attrName="employee.office", align=Align.CENTER, sort=10, fieldType=OfficeType.class),
-		@ExcelField(title="归属公司", attrName="employee.company", align = Align.CENTER, sort=20, fieldType=CompanyType.class),
-		@ExcelField(title="登录账号", attrName="loginCode", align=Align.CENTER, sort=30),
-		@ExcelField(title="用户昵称", attrName="userName", align=Align.CENTER, sort=40),
+		@ExcelField(title="归属部门", attrName="employee.company", align = Align.CENTER, sort=20, fieldType=CompanyType.class),
+//		@ExcelField(title="登录账号", attrName="loginCode", align=Align.CENTER, sort=30),
+//		@ExcelField(title="用户昵称", attrName="userName", align=Align.CENTER, sort=40),
 		@ExcelField(title="电子邮箱", attrName="email", align=Align.LEFT, sort=50),
 		@ExcelField(title="手机号码", attrName="mobile", align=Align.CENTER, sort=60),
 		@ExcelField(title="办公电话", attrName="phone", align=Align.CENTER, sort=70),
-		@ExcelField(title="员工编码", attrName="employee.empCode", align=Align.CENTER, sort=80),
+		@ExcelField(title="执法证号", attrName="employee.empCode", align=Align.CENTER, sort=80),
 		@ExcelField(title="员工姓名", attrName="employee.empName", align=Align.CENTER, sort=95),
 		@ExcelField(title="拥有角色编号", attrName="userRoleString", align=Align.LEFT, sort=800, type=ExcelField.Type.IMPORT),
 		@ExcelField(title="最后登录日期", attrName="lastLoginDate", align=Align.CENTER, sort=900, type=ExcelField.Type.EXPORT, dataFormat="yyyy-MM-dd HH:mm"),
