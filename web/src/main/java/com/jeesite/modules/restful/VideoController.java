@@ -90,6 +90,8 @@ public class VideoController{
 				bizAlarm.setVideoUrl(videoUrl);
 				bizAlarm.setOosUrl(lookImg);
 				bizAlarm.setAlarmType(typeStatus);
+				bizAlarm.setCreateDate(new Date());
+				bizAlarm.setUpdateDate(new Date());
 				try {
 //					bizPlaceService.save(bp);
 					bizAlarmService.save(bizAlarm);
@@ -115,6 +117,9 @@ public class VideoController{
 	public ResponseEntity<Result> savePlace(@RequestBody BizPlace bizPlace) {
 		Result r=new Result();
 		try {
+			bizPlace.setCreateDate(new Date());
+			bizPlace.setUpdateDate(new Date());
+			bizPlace.setCreateBy("API");
 			bizPlaceService.save(bizPlace);
 		} catch (Exception e) {
 			r.setSuccess(false);
@@ -130,14 +135,50 @@ public class VideoController{
 	@RequestMapping(value = {"/rtsp"},method = RequestMethod.POST,produces = MediaType.APPLICATION_JSON_UTF8_VALUE)
 	public ResponseEntity<Result> saveRtsp(
 			@ApiParam(value = "视频场所编号", required = true) @RequestParam(value = "place")String place,
-			@ApiParam(value = "视频场所编号", required = true) @RequestParam(value = "rtsp")String rtspUrl) {
+			@ApiParam(value = "视频场RTSP", required = true) @RequestParam(value = "rtsp")String rtspUrl,
+			@ApiParam(value = "是否上线(add,del)") @RequestParam(value = "type", required = false)String type) {
 		Result r=new Result();
 		try {
 			if(StringUtils.isNotBlank(place)) {
 				BizPlace bizPlace=bizPlaceService.get(place);
 				if(bizPlace!=null) {
-					bizPlace.setRtspUrl(rtspUrl);
-					bizPlaceService.save(bizPlace);
+					if(StringUtils.isNotBlank(rtspUrl)) {
+						String oldRtspUrls=bizPlace.getRtspUrl();
+						type=StringUtils.isBlank(type)?"add":type;
+						if("add".equals(type)) {
+							if(StringUtils.isBlank(oldRtspUrls)) {
+								bizPlace.setRtspUrl(rtspUrl);
+							}else{
+								bizPlace.setRtspUrl(oldRtspUrls+","+rtspUrl);
+							}
+							bizPlace.setUpdateDate(new Date());
+							bizPlace.setUpdateBy("API");
+							bizPlaceService.save(bizPlace);
+						}else{
+							if(StringUtils.isNotBlank(oldRtspUrls)) {
+								oldRtspUrls=oldRtspUrls.trim().replaceAll(rtspUrl,"").trim();
+								oldRtspUrls=oldRtspUrls.replaceAll(",,",",").trim();
+								oldRtspUrls=oldRtspUrls.endsWith(",")?oldRtspUrls.substring(0, oldRtspUrls.length()-1).trim():oldRtspUrls;
+								bizPlace.setRtspUrl(oldRtspUrls.length()==0?null:oldRtspUrls);
+								bizPlace.setUpdateDate(new Date());
+								bizPlace.setUpdateBy("API");
+								bizPlaceService.save(bizPlace);
+							}
+							BizAlarm bizAlarm=new BizAlarm();
+							bizAlarm.setAlarmCode(place+"_"+bizPlace.getBizAlarmList().size());
+							bizAlarm.setPlaceCode(place);
+							bizAlarm.setAlarmTime(new Date());
+							bizAlarm.setVideoUrl(rtspUrl);
+//							bizAlarm.setSign(sign);
+//							bizAlarm.setOosUrl(lookImg);
+							bizAlarm.setAlarmType("1");
+							bizAlarm.setCreateDate(new Date());
+							bizAlarm.setUpdateDate(new Date());
+							bizAlarm.setCreateBy("API");
+							bizAlarm.setUpdateBy("API");
+							bizAlarmService.save(bizAlarm);
+						}
+					}
 				}else{
 					r.setSuccess(false);
 					r.setMsg("视频场所编号不存在.");
@@ -165,6 +206,7 @@ public class VideoController{
 				BizPlace bizPlace=bizPlaceService.get(place);
 				if(bizPlace!=null) {
 					bizPlace.setRtspUrl(null);
+					bizPlace.setUpdateDate(new Date());bizPlace.setUpdateBy("API");
 					bizPlaceService.save(bizPlace);
 				}else{
 					r.setSuccess(false);
@@ -213,29 +255,29 @@ public class VideoController{
 			@ApiParam(value = "地区编码") @RequestParam(value ="areaCode", required = false)String areaCode,
 			@ApiParam(value = "场所名称") @RequestParam(value ="placeName", required = false)String placeName) {
 		Result r=new Result();
-		BizPlace bp=new BizPlace();
-		bp.setTradeType(tradeType);
-		bp.setPlaceName(placeName);
-		Area area=areaService.get(areaCode);
-		if(area==null) {
+		try {
+			String andsql=MessageFormat.format("and p.trade_type=''{0}'' {1} {2} ",
+					tradeType,
+					StringUtils.isBlank(areaCode)?"":"and p.area_code like '"+removeZero(areaCode)+"%'",
+					StringUtils.isBlank(placeName)?"":"and p.place_name='"+placeName+"'");
+			//TODO : 查询条件 ;签名;时间戳" 
+			HashMap<String,Object> param=new HashMap<String,Object>();
+			param.put("andsql",andsql);
+			List<Map<String, Object>> eu = bizPlaceService.queryMap(param);
+			r.setData(eu);
+		} catch (Exception e) {
 			r.setSuccess(false);
 			r.setErrCode(Result.ERR_CODE);
-			r.setMsg("地区编码不存在");
-		}else {
-			bp.setArea(area);
-		}
-		if(r.isSuccess()) {
-			try {
-				List<BizPlace> eu = bizPlaceService.findList(bp);
-				r.setData(eu);
-			} catch (Exception e) {
-				r.setSuccess(false);
-				r.setErrCode(Result.ERR_CODE);
-				r.setMsg("查询失败");
-				e.printStackTrace();
-			}
+			r.setMsg("查询失败");
+			e.printStackTrace();
 		}
 		return new ResponseEntity<Result>(r, HttpStatus.OK);
+	}
+	private static String removeZero(String code) {
+		if(code.endsWith("0")) {
+			code=removeZero(code.substring(0, code.length()-1));
+		}
+		return code;
 	}
 	/**
 	 * 2.	获取历史报警记录
@@ -288,13 +330,25 @@ public class VideoController{
 			@ApiParam(value = "时间戳", required = true) @RequestParam(value = "noncestr")String noncestr,
 			@ApiParam(value = "场所类型", required = true) @RequestParam("tradeType")String tradeType,
 			@ApiParam(value = "地区编码", required = false) @RequestParam(value="areaCode", required = false)String areaCode,
+			@ApiParam(value = "起始时间(yyyy-MM-dd HH:mm:ss)") @RequestParam(value="beginTime", required = false)String beginTime,
 			@ApiParam(value = "处置方式") @RequestParam(value="dealWay", required = false)String dealWay) {
 		Result r=new Result();
+		Date dt=null;
+		if(StringUtils.isNotBlank(beginTime)) {
+			try {
+				dt=sdf.parse(beginTime);
+			} catch (Exception e) {
+				r.setSuccess(false);
+				r.setErrCode(Result.ERR_CODE);
+				r.setMsg("日期时间格式不对");
+			}
+		}
 		if(r.isSuccess()) {
 			try {
-				String andsql=MessageFormat.format("and p.trade_type=''{0}'' {1} {2}", tradeType,
+				String andsql=MessageFormat.format("and p.trade_type=''{0}'' {1} {2} {3} ", tradeType,
 						StringUtils.isBlank(areaCode)?"":"and p.area_code='"+areaCode+"'",
-						StringUtils.isBlank(dealWay)?"":"and p.deal_way='"+dealWay+"'");
+						StringUtils.isBlank(dealWay)?"":"and a.deal_way='"+dealWay+"'",
+						StringUtils.isBlank(beginTime)?"":"and a.alarm_time>=STR_TO_DATE('"+beginTime+"','%Y-%m-%d %H:%i:%s')");
 				//TODO :  签名; 时间戳
 				HashMap<String,Object> bp=new HashMap<String,Object>();
 				bp.put("andsql",andsql);
@@ -316,12 +370,14 @@ public class VideoController{
 	public ResponseEntity<Result> getAlarmsException(@ApiParam(value = "签名", required = true) @RequestParam(value = "sign")String sign,
 			@ApiParam(value = "时间戳", required = true) @RequestParam(value = "noncestr")String noncestr,
 			@ApiParam(value = "用户编号", required = true) @RequestParam("userCode")String userCode,
-			@ApiParam(value = "处置方式") @RequestParam(value ="result", required = false)String dealWay) {
+			@ApiParam(value = "报警记录编号") @RequestParam(value ="alarmCode", required = false)String alarmCode,
+			@ApiParam(value = "处置方式") @RequestParam(value ="dealWay", required = false)String dealWay) {
 		Result r=new Result();
 		if(r.isSuccess()) {
 			try {
-				String andsql=MessageFormat.format(" {0}", 
-				StringUtils.isBlank(dealWay)?"":"and p.deal_way='"+dealWay+"'");
+				String andsql=MessageFormat.format(" {0} {1} ", 
+				StringUtils.isBlank(dealWay)?"":"and a.deal_way='"+dealWay+"'",
+				StringUtils.isBlank(dealWay)?"":"and a.alarm_code='"+alarmCode+"'");
 				//TODO :  签名; 时间戳；用户编号
 				HashMap<String,Object> bp=new HashMap<String,Object>();
 				bp.put("andsql",andsql);

@@ -32,7 +32,7 @@ public class BizAlarmService extends CrudService<BizAlarmDao, BizAlarm> {
 	
 	/**
 	 * 获取单条数据
-	 * @param bizPlace
+	 * @param bizAlarm
 	 * @return
 	 */
 	@Override
@@ -41,7 +41,7 @@ public class BizAlarmService extends CrudService<BizAlarmDao, BizAlarm> {
 	}
 	/**
 	 * 获取单条数据
-	 * @param bizPlace
+	 * @param bizAlarm
 	 * @return
 	 */
 	public List<Map<String, Object>> queryMap(Map<String,Object> param) {
@@ -49,8 +49,8 @@ public class BizAlarmService extends CrudService<BizAlarmDao, BizAlarm> {
 	}
 	/**
 	 * 查询分页数据
-	 * @param bizPlace 查询条件
-	 * @param bizPlace.page 分页对象
+	 * @param bizAlarm 查询条件
+	 * @param bizAlarm.page 分页对象
 	 * @return
 	 */
 	@Override
@@ -60,7 +60,7 @@ public class BizAlarmService extends CrudService<BizAlarmDao, BizAlarm> {
 	
 	/**
 	 * 保存数据（插入或更新）
-	 * @param bizPlace
+	 * @param bizAlarm
 	 */
 	@Override
 	@Transactional(readOnly=false)

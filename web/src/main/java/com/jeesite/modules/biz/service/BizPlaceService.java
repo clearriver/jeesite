@@ -4,6 +4,7 @@
 package com.jeesite.modules.biz.service;
 
 import java.util.List;
+import java.util.Map;
 
 import javax.validation.ConstraintViolationException;
 
@@ -52,7 +53,14 @@ public class BizPlaceService extends CrudService<BizPlaceDao, BizPlace> {
 	public Page<BizPlace> findPage(BizPlace bizPlace) {
 		return super.findPage(bizPlace);
 	}
-	
+	/**
+	 * 获取单条数据
+	 * @param bizPlace
+	 * @return
+	 */
+	public List<Map<String, Object>> queryMap(Map<String,Object> param) {
+		return this.dao.queryMap(param);
+	}
 	/**
 	 * 保存数据（插入或更新）
 	 * @param bizPlace

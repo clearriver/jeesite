@@ -3,6 +3,9 @@
  */
 package com.jeesite.modules.biz.dao;
 
+import java.util.List;
+import java.util.Map;
+
 import com.jeesite.common.dao.CrudDao;
 import com.jeesite.common.mybatis.annotation.MyBatisDao;
 import com.jeesite.modules.biz.entity.BizPlace;
@@ -14,5 +17,6 @@ import com.jeesite.modules.biz.entity.BizPlace;
  */
 @MyBatisDao
 public interface BizPlaceDao extends CrudDao<BizPlace> {
+	public List<Map<String, Object>> queryMap(Map<String,Object> param);
 	
 }
