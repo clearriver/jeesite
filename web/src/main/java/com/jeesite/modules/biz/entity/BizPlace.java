@@ -39,8 +39,8 @@ import com.jeesite.modules.sys.entity.Area;
 		@Column(name="geo_coordinates", attrName="geoCoordinates", label="地理坐标"),
 		@Column(name="representative", attrName="representative", label="法定代表人", comment="法定代表人（主要负责人）"),
 		@Column(name="phone", attrName="phone", label="移动电话"),
-		@Column(name="business_status", attrName="businessStatus", label="营业状态"),
-		@Column(name="rtsp_url", attrName="rtspUrl", label="实时视频流RTSP地址")
+		@Column(name="business_status", attrName="businessStatus", label="营业状态")
+//		,@Column(name="rtsp_url", attrName="rtspUrl", label="实时视频流RTSP地址")
 	}, joinTable={
 			@JoinTable(type=Type.LEFT_JOIN, entity=Area.class, alias="o", 
 					on="o.area_code = a.city ",attrName="city",
@@ -77,8 +77,27 @@ public class BizPlace extends DataEntity<BizPlace> {
 	private String representative;		// 法定代表人（主要负责人）
 	private String phone;		// 移动电话
 	private String businessStatus;		// 营业状态
-	private String rtspUrl;		// 实时视频流RTSP地址
-
+	
+	private List<BizRtspUrl> bizRtspUrlList= ListUtils.newArrayList();		// 实时视频流RTSP地址
+	public List<BizRtspUrl> getBizRtspUrlList() {
+		return bizRtspUrlList;
+	}
+	public void setBizRtspUrlList(List<BizRtspUrl> bizRtspUrlList) {
+		this.bizRtspUrlList = bizRtspUrlList;
+	}
+	public String[] getBizRtspUrls() {
+		List<String> list = ListUtils.extractToList(bizRtspUrlList, "rtspUrl");
+		return list.toArray(new String[list.size()]);
+	}
+	public void setBizRtspUrls(String[] bizRtspUrls) {
+		for (String val : bizRtspUrls){
+			if (StringUtils.isNotBlank(val)){
+				BizRtspUrl e = new BizRtspUrl();
+				e.setRtspUrl(val);
+				this.bizRtspUrlList.add(e);
+			}
+		}
+	}
 	private List<BizAlarm> bizAlarmList = ListUtils.newArrayList(); // 关联报警信息
 	public List<BizAlarm> getBizAlarmList() {
 		return bizAlarmList;
@@ -195,14 +214,5 @@ public class BizPlace extends DataEntity<BizPlace> {
 
 	public void setBusinessStatus(String businessStatus) {
 		this.businessStatus = businessStatus;
-	}
-
-	@Length(min=0, max=100, message="实时视频流RTSP地址长度不能超过 100 个字符")
-	public String getRtspUrl() {
-		return rtspUrl;
-	}
-
-	public void setRtspUrl(String rtspUrl) {
-		this.rtspUrl = rtspUrl;
 	}
 }

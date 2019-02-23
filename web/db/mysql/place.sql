@@ -43,4 +43,12 @@ CREATE TABLE `js_biz_alarm` (
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci ROW_FORMAT=DYNAMIC COMMENT='报警表';
 
 
+CREATE TABLE `js_biz_rtsp_url` (
+  `rtsp_url` varchar(300) COLLATE utf8mb4_unicode_ci NOT NULL COMMENT 'RTSP_URL',
+  `place_code` varchar(100) COLLATE utf8mb4_unicode_ci NOT NULL COMMENT '许可证号或编号',
+  `online` varchar(100) COLLATE utf8mb4_unicode_ci DEFAULT NULL COMMENT '是否在线',
+  PRIMARY KEY (`rtsp_url`),
+  KEY `idx_js_biz_rtsp_url_pn` (`rtsp_url`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci ROW_FORMAT=DYNAMIC COMMENT='RTSP_URL';
+
 

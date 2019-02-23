@@ -20,4 +20,20 @@
 		</where>
 		ORDER BY p.place_code
 	</select>
+	<select id="queryRtspUrl" resultType="BizRtspUrl" parameterType="hashmap">
+		SELECT r.rtsp_url rtspUrl,r.place_code placeCode,r.online online  
+		FROM ${_prefix}biz_rtsp_url r
+		<where>
+			1=1 ${andsql} 
+		</where>
+		ORDER BY r.rtsp_url
+	</select>
+	<select id="queryBizAlarm" resultType="BizAlarm" parameterType="hashmap">
+		SELECT a.alarm_code alarmCode,a.place_code placeCode,a.alarm_type alarmType,a.alarm_time alarmTime,a.deal_way dealWay,a.oos_url oosUrl,a.sign sign  
+		FROM ${_prefix}biz_alarm a
+		<where>
+			1=1 ${andsql} 
+		</where>
+		ORDER BY a.alarm_code
+	</select>
 </mapper>

@@ -3,6 +3,8 @@
  */
 package com.jeesite.modules.biz.service;
 
+import java.text.MessageFormat;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
@@ -17,12 +19,11 @@ import com.jeesite.common.service.CrudService;
 import com.jeesite.common.service.ServiceException;
 import com.jeesite.common.utils.excel.ExcelImport;
 import com.jeesite.common.validator.ValidatorUtils;
-import com.jeesite.modules.biz.entity.BizPlace;
 import com.jeesite.modules.biz.dao.BizPlaceDao;
+import com.jeesite.modules.biz.entity.BizAlarm;
+import com.jeesite.modules.biz.entity.BizPlace;
+import com.jeesite.modules.biz.entity.BizRtspUrl;
 import com.jeesite.modules.file.utils.FileUploadUtils;
-import com.jeesite.modules.sys.entity.EmpUser;
-import com.jeesite.modules.sys.entity.User;
-import com.jeesite.modules.sys.utils.UserUtils;
 
 /**
  * 场所表Service
@@ -32,7 +33,33 @@ import com.jeesite.modules.sys.utils.UserUtils;
 @Service
 @Transactional(readOnly=true)
 public class BizPlaceService extends CrudService<BizPlaceDao, BizPlace> {
-	
+	/**
+	 * 获取单条数据
+	 * @param bizPlace
+	 * @return
+	 */
+	@Override
+	public BizPlace get(String bizPlace) {
+		BizPlace bp=super.get(bizPlace);
+		if(bp!=null) {
+			String andsql=MessageFormat.format("and r.place_code=''{0}'' ",bp.getPlaceCode());
+			HashMap<String,Object> param=new HashMap<String,Object>();
+			param.put("andsql",andsql);
+			List<BizRtspUrl> bizRtspUrlList=this.dao.queryRtspUrl(param);
+			if(bizRtspUrlList!=null) {
+				bp.setBizRtspUrlList(bizRtspUrlList);
+			}
+			
+//			andsql=MessageFormat.format("and a.place_code=''{0}'' ",bp.getPlaceCode());
+//			param=new HashMap<String,Object>();
+//			param.put("andsql",andsql);
+//			List<BizAlarm> bizAlarmList=this.dao.queryBizAlarm(param);
+//			if(bizAlarmList!=null) {
+//				bp.setBizAlarmList(bizAlarmList);
+//			}
+		}
+		return bp;
+	}
 	/**
 	 * 获取单条数据
 	 * @param bizPlace
@@ -40,7 +67,25 @@ public class BizPlaceService extends CrudService<BizPlaceDao, BizPlace> {
 	 */
 	@Override
 	public BizPlace get(BizPlace bizPlace) {
-		return super.get(bizPlace);
+		BizPlace bp=super.get(bizPlace);
+		if(bp!=null) {
+			String andsql=MessageFormat.format("and r.place_code=''{0}'' ",bp.getPlaceCode());
+			HashMap<String,Object> param=new HashMap<String,Object>();
+			param.put("andsql",andsql);
+			List<BizRtspUrl> bizRtspUrlList=this.dao.queryRtspUrl(param);
+			if(bizRtspUrlList!=null) {
+				bp.setBizRtspUrlList(bizRtspUrlList);
+			}
+			
+//			andsql=MessageFormat.format("and a.place_code=''{0}'' ",bp.getPlaceCode());
+//			param=new HashMap<String,Object>();
+//			param.put("andsql",andsql);
+//			List<BizAlarm> bizAlarmList=this.dao.queryBizAlarm(param);
+//			if(bizAlarmList!=null) {
+//				bp.setBizAlarmList(bizAlarmList);
+//			}
+		}
+		return bp;
 	}
 	
 	/**

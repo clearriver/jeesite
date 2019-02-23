@@ -26,19 +26,18 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
-import org.springframework.web.client.RestClientException;
 import org.springframework.web.client.RestTemplate;
 
 import com.google.gson.Gson;
-import com.google.gson.JsonSyntaxException;
+import com.jeesite.common.collect.ListUtils;
 import com.jeesite.modules.Constants;
 import com.jeesite.modules.biz.entity.BizAlarm;
 import com.jeesite.modules.biz.entity.BizPlace;
+import com.jeesite.modules.biz.entity.BizRtspUrl;
 import com.jeesite.modules.biz.service.BizAlarmService;
 import com.jeesite.modules.biz.service.BizPlaceService;
+import com.jeesite.modules.biz.service.BizRtspUrlService;
 import com.jeesite.modules.restful.dto.Result;
-import com.jeesite.modules.sys.entity.Area;
-import com.jeesite.modules.sys.entity.Config;
 import com.jeesite.modules.sys.service.AreaService;
 import com.jeesite.modules.sys.utils.ConfigUtils;
 import com.jeesite.modules.util.MD5Util;
@@ -61,6 +60,8 @@ public class VideoController{
 	private BizAlarmService bizAlarmService;
 	@Autowired
 	private AreaService areaService;
+	@Autowired
+	private BizRtspUrlService bizRtspUrlService;
 	@Autowired
 	private Gson gson;
 	private static SimpleDateFormat sdf=new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
@@ -104,7 +105,6 @@ public class VideoController{
 				bizAlarm.setCreateDate(new Date());
 				bizAlarm.setUpdateDate(new Date());
 				try {
-//					bizPlaceService.save(bp);
 					bizAlarmService.save(bizAlarm);
 					r.setData(bizAlarm);
 				} catch (Exception e) {
@@ -154,27 +154,18 @@ public class VideoController{
 				BizPlace bizPlace=bizPlaceService.get(place);
 				if(bizPlace!=null) {
 					if(StringUtils.isNotBlank(rtspUrl)) {
-						String oldRtspUrls=bizPlace.getRtspUrl();
+						String oldRtspUrls=StringUtils.join(bizPlace.getBizRtspUrls(),",");
 						type=StringUtils.isBlank(type)?"add":type;
-						if("add".equals(type)) {
-							if(StringUtils.isBlank(oldRtspUrls)) {
-								bizPlace.setRtspUrl(rtspUrl);
-							}else{
-								bizPlace.setRtspUrl(oldRtspUrls+","+rtspUrl);
-							}
-							bizPlace.setUpdateDate(new Date());
-							bizPlace.setUpdateBy("API");
-							bizPlaceService.save(bizPlace);
-						}else{
-							if(StringUtils.isNotBlank(oldRtspUrls)) {
-								oldRtspUrls=oldRtspUrls.trim().replaceAll(rtspUrl,"").trim();
-								oldRtspUrls=oldRtspUrls.replaceAll(",,",",").trim();
-								oldRtspUrls=oldRtspUrls.endsWith(",")?oldRtspUrls.substring(0, oldRtspUrls.length()-1).trim():oldRtspUrls;
-								bizPlace.setRtspUrl(oldRtspUrls.length()==0?null:oldRtspUrls);
-								bizPlace.setUpdateDate(new Date());
-								bizPlace.setUpdateBy("API");
-								bizPlaceService.save(bizPlace);
-							}
+
+						BizRtspUrl bizRtspUrl=new BizRtspUrl(bizPlace.getPlaceCode(),rtspUrl,type);
+						if(oldRtspUrls.contains(rtspUrl)) {
+							bizRtspUrl.setIsNewRecord(false);
+						}
+						bizRtspUrl.setUpdateDate(new Date());
+						bizRtspUrl.setUpdateBy("API");
+						bizRtspUrlService.save(bizRtspUrl);
+						
+						if(!"add".equals(type)) {
 							BizAlarm bizAlarm=new BizAlarm();
 							bizAlarm.setAlarmCode(place+"_"+bizPlace.getBizAlarmList().size());
 							bizAlarm.setPlaceCode(place);
@@ -216,9 +207,13 @@ public class VideoController{
 			if(StringUtils.isNotBlank(place)) {
 				BizPlace bizPlace=bizPlaceService.get(place);
 				if(bizPlace!=null) {
-					bizPlace.setRtspUrl(null);
-					bizPlace.setUpdateDate(new Date());bizPlace.setUpdateBy("API");
-					bizPlaceService.save(bizPlace);
+					List<BizRtspUrl> bizRtspUrlList=bizPlace.getBizRtspUrlList();
+					bizRtspUrlList.forEach(new Consumer<BizRtspUrl>() {
+						@Override
+						public void accept(BizRtspUrl t) {
+							bizRtspUrlService.delete(t);						
+						}
+					});
 				}else{
 					r.setSuccess(false);
 					r.setMsg("视频场所编号不存在.");
@@ -240,14 +235,22 @@ public class VideoController{
 	@RequestMapping(value = {"/{place}"},method = RequestMethod.GET,produces = MediaType.APPLICATION_JSON_UTF8_VALUE)
 	public ResponseEntity<Result> get(@ApiParam(value = "许可证号或编号", required = true) @PathVariable("place")String place) {
 		Result r=new Result();
-		if(StringUtils.isNotBlank(place)) {
+		if(StringUtils.isNotBlank(place)){
 			BizPlace bp = null;
 			try {
 				bp = bizPlaceService.get(place);
 				if(StringUtils.isBlank(bp.getGeoCoordinates())) {
 					String add=bp.getCity().getAreaName()+bp.getArea().getAreaName()+bp.getStreet();
 					bp.setGeoCoordinates(getGPS(add));
+					bp.setIsNewRecord(false);
 					bizPlaceService.save(bp);
+				}
+				List<BizRtspUrl> list=bp.getBizRtspUrlList();
+				for(int i=list.size()-1;i>=0;i--) {
+					BizRtspUrl ba=list.get(i);
+					if(!"add".equalsIgnoreCase(ba.getOnline())) {
+						list.remove(ba);
+					}
 				}
 			} catch (Exception e) {
 				e.printStackTrace();
@@ -288,11 +291,11 @@ public class VideoController{
 						String add=areaService.get(bp.get("city").toString()).getAreaName() +areaService.get(bp.get("area").toString()).getAreaName()+bp.get("street");
 						BizPlace bizPlace = bizPlaceService.get(bp.get("placeCode").toString());
 						bizPlace.setGeoCoordinates(getGPS(add));
+						bizPlace.setIsNewRecord(false);
 						bizPlaceService.save(bizPlace);
 					}
 				}
 			});
-
 		} catch (Exception e) {
 			r.setSuccess(false);
 			r.setErrCode(Result.ERR_CODE);
