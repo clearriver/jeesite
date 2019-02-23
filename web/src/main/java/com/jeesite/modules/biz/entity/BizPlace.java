@@ -40,7 +40,6 @@ import com.jeesite.modules.sys.entity.Area;
 		@Column(name="representative", attrName="representative", label="法定代表人", comment="法定代表人（主要负责人）"),
 		@Column(name="phone", attrName="phone", label="移动电话"),
 		@Column(name="business_status", attrName="businessStatus", label="营业状态"),
-		@Column(name="rtsp_url", attrName="rtspUrl", label="实时视频流RTSP地址"),
 		@Column(name="rtsp_url", attrName="rtspUrl", label="实时视频流RTSP地址")
 	}, joinTable={
 			@JoinTable(type=Type.LEFT_JOIN, entity=Area.class, alias="o", 
