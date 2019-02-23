@@ -9,17 +9,17 @@ import java.util.Optional;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.boot.builder.SpringApplicationBuilder;
+import org.springframework.boot.web.client.RestTemplateBuilder;
 import org.springframework.boot.web.servlet.support.SpringBootServletInitializer;
 import org.springframework.context.annotation.Bean;
+import org.springframework.web.client.RestTemplate;
 
-import springfox.documentation.builders.ApiInfoBuilder;
-import springfox.documentation.builders.ParameterBuilder;
+import com.google.gson.Gson;
+
 import springfox.documentation.builders.PathSelectors;
 import springfox.documentation.builders.RequestHandlerSelectors;
-import springfox.documentation.schema.ModelRef;
 import springfox.documentation.service.ApiInfo;
 import springfox.documentation.service.Contact;
-import springfox.documentation.service.Parameter;
 import springfox.documentation.service.VendorExtension;
 import springfox.documentation.spi.DocumentationType;
 import springfox.documentation.spring.web.plugins.Docket;
@@ -57,5 +57,15 @@ public class Application extends SpringBootServletInitializer {
 	            new Contact("Video System", "www.july7.top", "wuqinghe2005@126.com"), null, null,
 	            new ArrayList<VendorExtension>()))
 	        .genericModelSubstitutes(Optional.class);
+	  }
+
+	  @Bean
+	  public RestTemplate getRestTemplate(RestTemplateBuilder builder){
+		  return builder.build();
+	  }
+
+	  @Bean
+	  public Gson createGson() {
+		  return new Gson();
 	  }
 }

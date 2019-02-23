@@ -13,6 +13,7 @@ import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.function.Consumer;
 
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -25,7 +26,11 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.client.RestClientException;
+import org.springframework.web.client.RestTemplate;
 
+import com.google.gson.Gson;
+import com.google.gson.JsonSyntaxException;
 import com.jeesite.modules.Constants;
 import com.jeesite.modules.biz.entity.BizAlarm;
 import com.jeesite.modules.biz.entity.BizPlace;
@@ -33,7 +38,9 @@ import com.jeesite.modules.biz.service.BizAlarmService;
 import com.jeesite.modules.biz.service.BizPlaceService;
 import com.jeesite.modules.restful.dto.Result;
 import com.jeesite.modules.sys.entity.Area;
+import com.jeesite.modules.sys.entity.Config;
 import com.jeesite.modules.sys.service.AreaService;
+import com.jeesite.modules.sys.utils.ConfigUtils;
 import com.jeesite.modules.util.MD5Util;
 
 import io.swagger.annotations.ApiParam;
@@ -47,11 +54,15 @@ import io.swagger.annotations.ApiParam;
 @RequestMapping(value = "/api/restful")
 public class VideoController{
 	@Autowired
+	private RestTemplate restTemplate;
+	@Autowired
 	private BizPlaceService bizPlaceService;
 	@Autowired
 	private BizAlarmService bizAlarmService;
 	@Autowired
 	private AreaService areaService;
+	@Autowired
+	private Gson gson;
 	private static SimpleDateFormat sdf=new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
 	private static SimpleDateFormat sdfd=new SimpleDateFormat("yyyy-MM-dd");
 	/**
@@ -233,6 +244,11 @@ public class VideoController{
 			BizPlace bp = null;
 			try {
 				bp = bizPlaceService.get(place);
+				if(StringUtils.isBlank(bp.getGeoCoordinates())) {
+					String add=bp.getCity().getAreaName()+bp.getArea().getAreaName()+bp.getStreet();
+					bp.setGeoCoordinates(getGPS(add));
+					bizPlaceService.save(bp);
+				}
 			} catch (Exception e) {
 				e.printStackTrace();
 			}
@@ -258,13 +274,25 @@ public class VideoController{
 		try {
 			String andsql=MessageFormat.format("and p.trade_type=''{0}'' {1} {2} ",
 					tradeType,
-					StringUtils.isBlank(areaCode)?"":"and p.area_code like '"+removeZero(areaCode)+"%'",
+					StringUtils.isBlank(areaCode)?"":"and p.area like '"+removeZero(areaCode)+"%'",
 					StringUtils.isBlank(placeName)?"":"and p.place_name='"+placeName+"'");
 			//TODO : 查询条件 ;签名;时间戳" 
 			HashMap<String,Object> param=new HashMap<String,Object>();
 			param.put("andsql",andsql);
 			List<Map<String, Object>> eu = bizPlaceService.queryMap(param);
 			r.setData(eu);
+			eu.forEach(new Consumer<Map<String, Object>>() {
+				@Override
+				public void accept(Map<String, Object> bp) {
+					if(!bp.containsKey("geoCoordinates")||bp.get("geoCoordinates")==null||StringUtils.isBlank(bp.get("geoCoordinates").toString())) {
+						String add=areaService.get(bp.get("city").toString()).getAreaName() +areaService.get(bp.get("area").toString()).getAreaName()+bp.get("street");
+						BizPlace bizPlace = bizPlaceService.get(bp.get("placeCode").toString());
+						bizPlace.setGeoCoordinates(getGPS(add));
+						bizPlaceService.save(bizPlace);
+					}
+				}
+			});
+
 		} catch (Exception e) {
 			r.setSuccess(false);
 			r.setErrCode(Result.ERR_CODE);
@@ -413,5 +441,17 @@ public class VideoController{
         paramEncodeStr = paramEncodeStr + "key=" + Constants.AUTH_KEY;
         return MD5Util.MD5Encode(paramEncodeStr);
     }
-
+    public String getGPS(String s) {
+    	String result=null;
+    	try {
+			String baidu_ak=ConfigUtils.getConfig("sys.baidu.ak").getConfigValue();
+			String url="http://api.map.baidu.com/geocoder/v2/?output=json&ak="+baidu_ak+"&address=宁夏回族自治区"+s;
+			Map r=gson.fromJson(restTemplate.getForObject(url, String.class),Map.class);
+			//result.location.lng,r.result.location.lat
+			result=((Map)((Map)r.get("result")).get("location")).get("lng")+","+((Map)((Map)r.get("result")).get("location")).get("lat");
+		}catch (Exception e) {
+			e.printStackTrace();
+		}
+    	return result;
+    }
 }
