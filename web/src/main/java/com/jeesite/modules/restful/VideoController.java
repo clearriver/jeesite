@@ -284,9 +284,11 @@ public class VideoController{
 			param.put("andsql",andsql);
 			List<Map<String, Object>> eu = bizPlaceService.queryMap(param);
 			r.setData(eu);
+			ArrayList<String> pclist=new ArrayList<String>();
 			eu.forEach(new Consumer<Map<String, Object>>() {
 				@Override
 				public void accept(Map<String, Object> bp) {
+					pclist.add("'"+bp.get("placeCode").toString()+"'");
 					if(!bp.containsKey("geoCoordinates")||bp.get("geoCoordinates")==null||StringUtils.isBlank(bp.get("geoCoordinates").toString())) {
 						String add=areaService.get(bp.get("city").toString()).getAreaName() +areaService.get(bp.get("area").toString()).getAreaName()+bp.get("street");
 						BizPlace bizPlace = bizPlaceService.get(bp.get("placeCode").toString());
@@ -296,6 +298,33 @@ public class VideoController{
 					}
 				}
 			});
+			if(!eu.isEmpty()) {
+				andsql=MessageFormat.format("and r.place_code in ({0}) ",StringUtils.join(pclist, ","));
+				param=new HashMap<String,Object>();
+				param.put("andsql",andsql);
+				List<BizRtspUrl> bizRtspUrlList=bizPlaceService.queryRtspUrl(param);
+				if(bizRtspUrlList!=null&&!bizRtspUrlList.isEmpty()) {
+					eu.forEach(new Consumer<Map<String, Object>>() {
+						@Override
+						public void accept(Map<String, Object> bp) {
+							String placeCode=bp.get("placeCode").toString();
+							ArrayList<BizRtspUrl> brlist=new ArrayList<BizRtspUrl>();
+							bizRtspUrlList.forEach(new Consumer<BizRtspUrl>() {
+								@Override
+								public void accept(BizRtspUrl t) {
+									if(placeCode.equals(t.getPlaceCode())) {
+										brlist.add(t);
+									}
+								}
+							});
+							List<String> lists = ListUtils.extractToList(brlist, "rtspUrl");
+							bp.put("bizRtspUrlList", brlist);
+							bp.put("bizRtspUrls", lists);
+						}
+					});
+				}
+			}
+			
 		} catch (Exception e) {
 			r.setSuccess(false);
 			r.setErrCode(Result.ERR_CODE);

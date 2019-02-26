@@ -60,6 +60,12 @@ public class BizPlaceService extends CrudService<BizPlaceDao, BizPlace> {
 		}
 		return bp;
 	}
+	public List<BizAlarm> queryBizAlarm(Map<String,Object> param){
+		return dao.queryBizAlarm(param);
+	}
+	public List<BizRtspUrl> queryRtspUrl(Map<String,Object> param){
+		return dao.queryRtspUrl(param);
+	}
 	/**
 	 * 获取单条数据
 	 * @param bizPlace

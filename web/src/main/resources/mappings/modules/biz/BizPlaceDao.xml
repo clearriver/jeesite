@@ -13,7 +13,7 @@
 	</select> -->
 	<select id="queryMap" resultType="java.util.HashMap" parameterType="hashmap">
 		SELECT p.place_code placeCode,p.place_name placeName,p.trade_type tradeType,p.city city,p.area area,p.street street,p.geo_coordinates geoCoordinates,
-		p.representative representative,p.phone phone,p.business_status businessStatus,p.rtsp_url rtspUrl  
+		p.representative representative,p.phone phone,p.business_status businessStatus   
 		FROM ${_prefix}biz_place p
 		<where>
 			1=1 ${andsql} 
