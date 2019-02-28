@@ -3,8 +3,10 @@
  */
 package com.jeesite.modules.sys.web;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
+import java.util.function.Consumer;
 
 import org.apache.shiro.authz.annotation.RequiresPermissions;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -101,12 +103,24 @@ public class OfficeController extends BaseController {
 			Office where = new Office();
 			where.setParentCode(office.getParentCode());
 			Office last = officeService.getLastByParentCode(where);
-			if (last != null){
-				office.setTreeSort(last.getTreeSort() + 30);
-				office.setViewCode(IdGen.nextCode(last.getViewCode()));
-			}else if (office.getParent() != null){
-				office.setViewCode(office.getParent().getViewCode() + "001");
+//			if (last != null){
+//				office.setTreeSort(last.getTreeSort() + 30);
+//				office.setViewCode(IdGen.nextCode(last.getViewCode()));
+//			}else if (office.getParent() != null){
+//				office.setViewCode(office.getParent().getViewCode() + "001");
+//			}
+			if(last!=null) {
+				office.setTreeSort(last.getTreeSort() + 1);
 			}
+			ArrayList<String> siblings=new ArrayList<String>();
+			officeService.findList(where).forEach(new Consumer<Office>() {
+				@Override
+				public void accept(Office t) {
+					siblings.add(t.getOfficeCode());
+				}
+			});
+			String code=IdGen.nextCode(office.getParentCode(), siblings);
+			office.setViewCode(office.getParent().getViewCode() + code);
 		}
 		model.addAttribute("office", office);
 		return "modules/sys/officeForm";
