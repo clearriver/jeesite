@@ -55,8 +55,10 @@ public class AccountController {
 					eur.put("phone", eu.getPhone());
 					eur.put("sex", eu.getSex());
 					eur.put("avatar", eu.getAvatar());
-					eur.put("office",eu.getEmployee()==null?null:
-						(eu.getEmployee().getOffice()==null?null:eu.getEmployee().getOffice().getOfficeCode()));
+					String officeCode=eu.getEmployee()==null?null:
+						(eu.getEmployee().getOffice()==null?null:eu.getEmployee().getOffice().getOfficeCode());
+					eur.put("office",officeCode);
+					eur.put("area",officeCode==null?null:(officeCode.length()>6?officeCode.substring(0,6):officeCode));
 					r.setData(eur);
 				}
 			} catch (Exception e) {
