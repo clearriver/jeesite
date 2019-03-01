@@ -275,8 +275,8 @@ public class VideoController{
 			@ApiParam(value = "场所名称") @RequestParam(value ="placeName", required = false)String placeName) {
 		Result r=new Result();
 		try {
-			String andsql=MessageFormat.format("and p.trade_type=''{0}'' {1} {2} ",
-					tradeType,
+			String andsql=MessageFormat.format("{0} {1} {2} ",
+					"0".equals(tradeType)?"":"and p.trade_type='"+tradeType+"'",
 					StringUtils.isBlank(areaCode)?"":"and p.area like '"+removeZero(areaCode)+"%'",
 					StringUtils.isBlank(placeName)?"":"and p.place_name='"+placeName+"'");
 			//TODO : 查询条件 ;签名;时间戳" 
@@ -363,8 +363,9 @@ public class VideoController{
 		}
 		if(r.isSuccess()) {
 			try {
-				String andsql=MessageFormat.format("and p.trade_type=''{0}'' and a.alarm_type=''{1}'' {2} {3} {4}",
-						tradeType,alarmType,
+				String andsql=MessageFormat.format("{0} {1} {2} {3} {4}",
+						"0".equals(tradeType)?"":"and p.trade_type='"+tradeType+"'",
+						"0".equals(alarmType)?"":"and a.alarm_type='"+alarmType+"'",
 						StringUtils.isBlank(areaCode)?"":"and p.area_code='"+areaCode+"'",
 						StringUtils.isBlank(placeName)?"":"and p.place_name='"+placeName+"'",
 						StringUtils.isBlank(alarmTime)?"":"and date_format(a.alarm_time, '%Y-%m-%d')='"+alarmTime+"'");
@@ -405,7 +406,8 @@ public class VideoController{
 		}
 		if(r.isSuccess()) {
 			try {
-				String andsql=MessageFormat.format("and p.trade_type=''{0}'' {1} {2} {3} ", tradeType,
+				String andsql=MessageFormat.format("{0} {1} {2} {3} ", 
+						"0".equals(tradeType)?"":"and p.trade_type='"+tradeType+"'",
 						StringUtils.isBlank(areaCode)?"":"and p.area_code='"+areaCode+"'",
 						StringUtils.isBlank(dealWay)?"":"and a.deal_way='"+dealWay+"'",
 						StringUtils.isBlank(beginTime)?"":"and a.alarm_time>=STR_TO_DATE('"+beginTime+"','%Y-%m-%d %H:%i:%s')");
