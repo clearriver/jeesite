@@ -90,7 +90,7 @@ public class IdGenerate {
 		if (pcode != null){
 			String str = pcode.trim();
 			ArrayList<Integer> list=new ArrayList<Integer>();
-			list.add(1);
+			list.add(0);
 			siblings.forEach(new Consumer<String>() {
 				@Override
 				public void accept(String e) {
@@ -104,7 +104,8 @@ public class IdGenerate {
 				}
 			});
 			int r=list.get(0);
-			str=r<10?"00"+r:(r<100?"0"+r:r+"");
+			r=r+1;
+			str=r<10?"0"+r:(r<100?""+r:(r<1000?"0"+r:(r<10000?""+r:(r<100000?"0"+r:r+""))));
 			return str;
 		}
 		return null;
