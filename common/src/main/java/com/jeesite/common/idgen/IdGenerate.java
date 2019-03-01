@@ -4,7 +4,10 @@
 package com.jeesite.common.idgen;
 
 import java.security.SecureRandom;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.UUID;
+import java.util.function.Consumer;
 
 import com.jeesite.common.codec.EncodeUtils;
 import com.jeesite.common.lang.ObjectUtils;
@@ -80,7 +83,37 @@ public class IdGenerate {
 		}
 		return null;
 	}
-	
+	/**
+	 * 获取新代码编号
+	 */
+	public static String nextCode(String pcode,List<String> siblings){
+		if (pcode != null){
+			String str = pcode.trim();
+			ArrayList<Integer> list=new ArrayList<Integer>();
+			list.add(1);
+			siblings.forEach(new Consumer<String>() {
+				@Override
+				public void accept(String e) {
+					if(e.length()>6){
+						int t=Integer.parseInt(e.substring(6));
+						int r=list.get(0);
+						r=t>r?t:r;
+						list.clear();
+						list.add(r);
+					}
+				}
+			});
+			int r=list.get(0);
+			str=r<10?"00"+r:(r<100?"0"+r:r+"");
+			return str;
+		}
+		return null;
+	}
+	public static void main(String[] args) {
+		String e="64000001";
+		System.out.println(e.substring(6));
+		System.out.println(Integer.parseInt(e.substring(6)));
+	}
 //	public static void main(String[] args) {
 //		System.out.println(uuid());
 //		System.out.println(nextId());

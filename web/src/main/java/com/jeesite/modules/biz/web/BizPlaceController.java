@@ -146,7 +146,7 @@ public class BizPlaceController extends BaseController {
 		BizPlace bizPlace = new BizPlace();
 		List<BizPlace> list = ListUtils.newArrayList(bizPlace);
 		String fileName = "场所数据模板.xlsx";
-		try(ExcelExport ee = new ExcelExport("智能视频监管系统各场所单位相关信息字段表", EmpUser.class, Type.IMPORT)){
+		try(ExcelExport ee = new ExcelExport("智能视频监管系统各场所单位相关信息字段表", BizPlace.class, Type.IMPORT)){
 			ee.setDataList(list).write(response, fileName);
 		}
 	}
