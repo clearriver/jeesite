@@ -70,6 +70,26 @@
 					</div>
 				</div>
 				<div class="row">
+					<div class="col-xs-6 ">
+						<div class="form-group">
+							<label class="control-label col-sm-4" title="${text('地理坐标')}">
+								<span class="required hide">*</span>${text('地理坐标')}：<i class="fa icon-question hide"></i></label>
+							<div class="col-sm-8">
+								<#form:input path="geoCoordinates" maxlength="100" class="form-control"/>
+							</div>
+						</div>
+					</div>
+					<div class="col-xs-6 hide">
+						<div class="form-group">
+							<label class="control-label col-sm-4" title="">
+								<span class="required hide">*</span> ${text('实时视频流RTSP地址')}：<i class="fa icon-question hide"></i></label>
+							<div class="col-sm-8">
+								<#form:input path="rtspUrl" maxlength="100" class="form-control"/>
+							</div>
+						</div>
+					</div>
+				</div>
+				<div class="row">
 					<div class="col-xs-6">
 						<div class="form-group">
 							<label class="control-label col-sm-4" title="">
@@ -105,26 +125,6 @@
 								<span class="required hide">*</span> ${text('移动电话')}：<i class="fa icon-question hide"></i></label>
 							<div class="col-sm-8">
 								<#form:input path="phone" maxlength="100" class="form-control"/>
-							</div>
-						</div>
-					</div>
-				</div>
-				<div class="row">
-					<div class="col-xs-6 hide">
-						<div class="form-group">
-							<label class="control-label col-sm-4" title="${text('地理坐标')}">
-								<span class="required hide">*</span>${text('地理坐标')}：<i class="fa icon-question hide"></i></label>
-							<div class="col-sm-8">
-								<#form:input path="geoCoordinates" maxlength="100" class="form-control"/>
-							</div>
-						</div>
-					</div>
-					<div class="col-xs-6 hide">
-						<div class="form-group">
-							<label class="control-label col-sm-4" title="">
-								<span class="required hide">*</span> ${text('实时视频流RTSP地址')}：<i class="fa icon-question hide"></i></label>
-							<div class="col-sm-8">
-								<#form:input path="rtspUrl" maxlength="100" class="form-control"/>
 							</div>
 						</div>
 					</div>

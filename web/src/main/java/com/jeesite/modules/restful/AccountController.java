@@ -17,8 +17,10 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.jeesite.modules.restful.dto.Result;
+import com.jeesite.modules.sys.entity.Area;
 import com.jeesite.modules.sys.entity.EmpUser;
 import com.jeesite.modules.sys.entity.Office;
+import com.jeesite.modules.sys.service.AreaService;
 import com.jeesite.modules.sys.service.EmpUserService;
 import com.jeesite.modules.sys.service.OfficeService;
 
@@ -31,6 +33,8 @@ public class AccountController {
 	private EmpUserService empUserService;
 	@Autowired
 	private OfficeService officeService;
+	@Autowired
+	private AreaService areaService;
 	/**
 	 * 1.	获取当前用户账号基本配置信息
 	 * */
@@ -116,6 +120,57 @@ public class AccountController {
 					t.put("children", sr);
 					if(!sr.isEmpty()) {
 						tree(list,sr);
+					}
+				}
+			});
+		}
+	}
+	@RequestMapping(value = {"/area/{pcode}"},method = RequestMethod.GET,produces = MediaType.APPLICATION_JSON_UTF8_VALUE)
+	public ResponseEntity<Result> treeArea(@ApiParam(value = "行政区划编码", required = true) @PathVariable("pcode")String pcode) {
+		Area where = new Area();
+		where.setStatus(Office.STATUS_NORMAL);
+		where.setParentCodes(pcode);
+		List<Area> list = areaService.findList(where);
+		ArrayList<HashMap<String,Object>> r=new ArrayList<HashMap<String,Object>>();
+		if(!list.isEmpty()) {
+			list.forEach(new Consumer<Area>(){
+				@Override
+				public void accept(Area t) {
+					if(t.getParentCodes().endsWith(pcode+",")){
+						HashMap<String,Object> e=new HashMap<String,Object>();
+						e.put("value",t.getAreaCode());
+						e.put("label",t.getAreaName());
+						r.add(e);
+					}
+				}
+			});
+			treeSort(list,r);
+		}
+		Result res=new Result();
+		res.setData(r);
+		return new ResponseEntity<Result>(res, HttpStatus.OK);
+	}
+	private void treeSort(List<Area> list,ArrayList<HashMap<String,Object>> r) {
+		if(!r.isEmpty()) {
+			r.forEach(new Consumer<HashMap<String,Object>>(){
+				@Override
+				public void accept(HashMap<String,Object> t){
+					String pcode=t.get("value").toString();
+					ArrayList<HashMap<String,Object>> sr=new ArrayList<HashMap<String,Object>>();
+					list.forEach(new Consumer<Area>(){
+						@Override
+						public void accept(Area t) {
+							if(t.getParentCodes().endsWith(pcode+",")){
+								HashMap<String,Object> e=new HashMap<String,Object>();
+								e.put("value",t.getAreaCode());
+								e.put("label",t.getAreaName());
+								sr.add(e);
+							}
+						}
+					});
+					t.put("children", sr);
+					if(!sr.isEmpty()) {
+						treeSort(list,sr);
 					}
 				}
 			});
