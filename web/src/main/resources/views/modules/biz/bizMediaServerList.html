@@ -1,0 +1,98 @@
+<% layout('/layouts/default.html', {title: '服务器管理', libs: ['dataGrid']}){ %>
+<div class="main-content">
+	<div class="box box-main">
+		<div class="box-header">
+			<div class="box-title">
+				<i class="fa fa-list-alt"></i> ${text('服务器管理')}
+			</div>
+			<div class="box-tools pull-right">
+				<a href="#" class="btn btn-default" id="btnSearch" title="${text('查询')}"><i class="fa fa-filter"></i> ${text('查询')}</a>
+				<% if(hasPermi('biz:bizMediaServer:edit')){ %>
+					<a href="${ctx}/biz/bizMediaServer/form" class="btn btn-default btnTool" title="${text('新增流媒体服务器管理')}"><i class="fa fa-plus"></i> ${text('新增')}</a>
+				<% } %>
+			</div>
+		</div>
+		<div class="box-body">
+			<#form:form id="searchForm" model="${bizMediaServer}" action="${ctx}/biz/bizMediaServer/listData" method="post" class="form-inline hide"
+					data-page-no="${parameter.pageNo}" data-page-size="${parameter.pageSize}" data-order-by="${parameter.orderBy}">
+				<div class="form-group">
+					<label class="control-label">${text('地区')}：</label>
+					<div class="control-inline">
+						<#form:input path="office" maxlength="100" class="form-control width-120"/>
+					</div>
+					<div class="control-inline width-90">
+						<#form:treeselect id="office" title="${text('地区')}"
+								path="office" labelPath="office.officeName" 
+								url="${ctx}/sys/office/treeData?level=1" canSelectParent="true" btnClass="btn-sm" allowClear="true"/>
+					</div>
+				</div>
+				<div class="form-group">
+					<label class="control-label">${text('域名')}：</label>
+					<div class="control-inline">
+						<#form:input path="domainName" maxlength="300" class="form-control width-120"/>
+					</div>
+				</div>
+				<div class="form-group">
+					<label class="control-label">${text('IP')}：</label>
+					<div class="control-inline">
+						<#form:input path="serverIp" maxlength="100" class="form-control width-120"/>
+					</div>
+				</div>
+				<div class="form-group">
+					<label class="control-label">${text('端口')}：</label>
+					<div class="control-inline">
+						<#form:input path="serverPort" maxlength="6" class="form-control width-120"/>
+					</div>
+				</div>
+				<div class="form-group">
+					<label class="control-label">${text('服务器类型')}：</i></label>
+					<div class="control-inline">
+						<#form:radio path="serverType" dictType="biz_server_type"  class="form-control" />
+					</div>
+				</div>
+				<div class="form-group">
+					<button type="submit" class="btn btn-primary btn-sm">${text('查询')}</button>
+					<button type="reset" class="btn btn-default btn-sm">${text('重置')}</button>
+				</div>
+			</#form:form>
+			<table id="dataGrid"></table>
+			<div id="dataGridPage"></div>
+		</div>
+	</div>
+</div>
+<% } %>
+<script>
+// 初始化DataGrid对象
+$('#dataGrid').dataGrid({
+	searchForm: $("#searchForm"),
+	columnModel: [
+		{header:'${text("地区")}', name:'', index:'a.office', width:150, align:"left", frozen:true, formatter: function(val, obj, row, act){
+			return '<a href="${ctx}/biz/bizMediaServer/form?id='+row.id+'" class="btnList" data-title="${text("编辑流媒体服务器管理")}">'+(val||row.office.officeName+'('+row.office.officeCode+')'||row.id)+'</a>';
+		}},
+		{header:'${text("域名")}', name:'domainName', index:'a.domain_name', width:150, align:"left"},
+		{header:'${text("IP")}', name:'serverIp', index:'a.server_ip', width:150, align:"left"},
+		{header:'${text("端口")}', name:'serverPort', index:'a.server_port', width:150, align:"left"},
+		{header:'${text("服务器类型")}', name:'serverType', index:'a.server_type', width:150, align:"left",formatter: function(val, obj, row, act){
+			return js.getDictLabel(${@DictUtils.getDictListJson('biz_server_type')}, val, '', true);
+		}},
+		{header:'${text("操作")}', name:'actions', width:120, sortable:false, title:false, formatter: function(val, obj, row, act){
+			var actions = [];
+			<% if(hasPermi('biz:bizMediaServer:edit')){ %>
+				actions.push('<a href="${ctx}/biz/bizMediaServer/form?id='+row.id+'" class="btnList" title="${text("编辑流媒体服务器管理")}"><i class="fa fa-pencil"></i></a>&nbsp;');
+				if (row.status == Global.STATUS_NORMAL){
+					actions.push('<a href="${ctx}/biz/bizMediaServer/disable?id='+row.id+'" class="btnList" title="${text("停用流媒体服务器管理")}" data-confirm="${text("确认要停用该流媒体服务器管理吗？")}"><i class="glyphicon glyphicon-ban-circle"></i></a>&nbsp;');
+				}
+				if (row.status == Global.STATUS_DISABLE){
+					actions.push('<a href="${ctx}/biz/bizMediaServer/enable?id='+row.id+'" class="btnList" title="${text("启用流媒体服务器管理")}" data-confirm="${text("确认要启用该流媒体服务器管理吗？")}"><i class="glyphicon glyphicon-ok-circle"></i></a>&nbsp;');
+				}
+				actions.push('<a href="${ctx}/biz/bizMediaServer/delete?id='+row.id+'" class="btnList" title="${text("删除流媒体服务器管理")}" data-confirm="${text("确认要删除该流媒体服务器管理吗？")}"><i class="fa fa-trash-o"></i></a>&nbsp;');
+			<% } %>
+			return actions.join('');
+		}}
+	],
+	// 加载成功后执行事件
+	ajaxSuccess: function(data){
+		
+	}
+});
+</script>

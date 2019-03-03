@@ -51,4 +51,12 @@ CREATE TABLE `js_biz_rtsp_url` (
   KEY `idx_js_biz_rtsp_url_pn` (`rtsp_url`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci ROW_FORMAT=DYNAMIC COMMENT='RTSP_URL';
 
+CREATE TABLE `js_biz_media_server` (
+  `office` varchar(100) COLLATE utf8mb4_unicode_ci DEFAULT NULL COMMENT '地区',
+  `domain_name` varchar(300) COLLATE utf8mb4_unicode_ci NOT NULL COMMENT '域名',
+  `server_ip` varchar(100) COLLATE utf8mb4_unicode_ci NOT NULL COMMENT 'IP',
+  `server_port` varchar(6) COLLATE utf8mb4_unicode_ci DEFAULT NULL COMMENT '端口',
+  `server_type` varchar(2) COLLATE utf8mb4_unicode_ci DEFAULT NULL COMMENT '服务器类型',
+  PRIMARY KEY (`office`,`domain_name`,`server_ip`,`server_port`,`server_type`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci ROW_FORMAT=DYNAMIC COMMENT='流媒体服务器管理';
 

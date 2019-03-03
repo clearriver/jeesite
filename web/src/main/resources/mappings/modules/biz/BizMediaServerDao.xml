@@ -1,0 +1,37 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.jeesite.modules.biz.dao.BizMediaServerDao">
+	
+	<!-- 查询数据
+	<select id="findList" resultType="BizMediaServer">
+		SELECT ${sqlMap.column.toSql()}
+		FROM ${sqlMap.table.toSql()}
+		<where>
+			${sqlMap.where.toSql()}
+		</where>
+		ORDER BY ${sqlMap.order.toSql()}
+	</select> -->
+	
+	<select id="queryBizMediaServer" resultType="BizMediaServer" parameterType="hashmap">
+		SELECT a.id AS "id", a.office AS "office.officeCode", a.domain_name AS "domainName", a.server_ip AS "serverIp",
+		  a.server_port AS "serverPort", a.server_type AS "serverType", o.corp_code AS "office.corpCode", o.corp_name AS "office.corpName",
+		  o.status AS "office.status", o.create_by AS "office.createBy", o.create_date AS "office.createDate", o.update_by AS "office.updateBy",
+		  o.update_date AS "office.updateDate", o.remarks AS "office.remarks", o.parent_code AS "office.parentCode", 
+		  o.parent_codes AS "office.parentCodes", o.tree_sort AS "office.treeSort", o.tree_sorts AS "office.treeSorts",
+		  o.tree_leaf AS "office.treeLeaf", o.tree_level AS "office.treeLevel", o.tree_names AS "office.treeNames", 
+		  o.view_code AS "office.viewCode", o.office_name AS "office.officeName", o.full_name AS "office.fullName", 
+		  o.office_type AS "office.officeType", o.leader AS "office.leader", o.phone AS "office.phone", o.address AS "office.address", 
+		  o.zip_code AS "office.zipCode", o.email AS "office.email", o.extend_s1 AS "office.extend.extendS1", o.extend_s2 AS "office.extend.extendS2", 
+		  o.extend_s3 AS "office.extend.extendS3", o.extend_s4 AS "office.extend.extendS4", o.extend_s5 AS "office.extend.extendS5", 
+		  o.extend_s6 AS "office.extend.extendS6", o.extend_s7 AS "office.extend.extendS7", o.extend_s8 AS "office.extend.extendS8", 
+		  o.extend_i1 AS "office.extend.extendI1", o.extend_i2 AS "office.extend.extendI2", o.extend_i3 AS "office.extend.extendI3", 
+		  o.extend_i4 AS "office.extend.extendI4", o.extend_f1 AS "office.extend.extendF1", o.extend_f2 AS "office.extend.extendF2", 
+		  o.extend_f3 AS "office.extend.extendF3", o.extend_f4 AS "office.extend.extendF4", o.extend_d1 AS "office.extend.extendD1", 
+		  o.extend_d2 AS "office.extend.extendD2", o.extend_d3 AS "office.extend.extendD3", o.extend_d4 AS "office.extend.extendD4"  
+		  FROM ${_prefix}biz_media_server a LEFT JOIN ${_prefix}sys_office o ON o.office_code = a.office  
+		<where>
+			1=1 ${andsql} 
+		</where>
+		ORDER BY a.office
+	</select>
+</mapper>

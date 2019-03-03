@@ -32,9 +32,11 @@ import com.google.gson.Gson;
 import com.jeesite.common.collect.ListUtils;
 import com.jeesite.modules.Constants;
 import com.jeesite.modules.biz.entity.BizAlarm;
+import com.jeesite.modules.biz.entity.BizMediaServer;
 import com.jeesite.modules.biz.entity.BizPlace;
 import com.jeesite.modules.biz.entity.BizRtspUrl;
 import com.jeesite.modules.biz.service.BizAlarmService;
+import com.jeesite.modules.biz.service.BizMediaServerService;
 import com.jeesite.modules.biz.service.BizPlaceService;
 import com.jeesite.modules.biz.service.BizRtspUrlService;
 import com.jeesite.modules.restful.dto.Result;
@@ -62,6 +64,8 @@ public class VideoController{
 	private AreaService areaService;
 	@Autowired
 	private BizRtspUrlService bizRtspUrlService;
+	@Autowired
+	private BizMediaServerService bizMediaServerService;
 	@Autowired
 	private Gson gson;
 	private static SimpleDateFormat sdf=new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
@@ -269,7 +273,7 @@ public class VideoController{
 	 * */
 	@RequestMapping(value = {"/places"},method = RequestMethod.GET,produces = MediaType.APPLICATION_JSON_UTF8_VALUE)
 	public ResponseEntity<Result> getPlaces(@ApiParam(value = "签名", required = true) @RequestParam(value = "sign")String sign,
-			@ApiParam(value = "时间戳", required = true) @RequestParam(value = "noncestr")String noncestr,
+			@ApiParam(value = "时间戳( yyyy-MM-dd HH:mm:ss)", required = true) @RequestParam(value = "noncestr")String noncestr,
 			@ApiParam(value = "场所类型", required = true) @RequestParam("tradeType")String tradeType,
 			@ApiParam(value = "地区编码") @RequestParam(value ="areaCode", required = false)String areaCode,
 			@ApiParam(value = "场所名称") @RequestParam(value ="placeName", required = false)String placeName) {
@@ -344,7 +348,7 @@ public class VideoController{
 	 * */
 	@RequestMapping(value = {"/alarms"},method = RequestMethod.GET,produces = MediaType.APPLICATION_JSON_UTF8_VALUE)
 	public ResponseEntity<Result> getAlarms(@ApiParam(value = "签名", required = true) @RequestParam(value = "sign")String sign,
-			@ApiParam(value = "时间戳", required = true) @RequestParam(value = "noncestr")String noncestr,
+			@ApiParam(value = "时间戳( yyyy-MM-dd HH:mm:ss)", required = true) @RequestParam(value = "noncestr")String noncestr,
 			@ApiParam(value = "场所类型", required = true) @RequestParam("tradeType")String tradeType,
 			@ApiParam(value = "报警类型", required = true) @RequestParam("alarmType")String alarmType,
 			@ApiParam(value = "地区编码") @RequestParam(value ="areaCode", required = false)String areaCode,
@@ -388,7 +392,7 @@ public class VideoController{
 	 * */
 	@RequestMapping(value = {"/alarmsno"},method = RequestMethod.GET,produces = MediaType.APPLICATION_JSON_UTF8_VALUE)
 	public ResponseEntity<Result> getAlarmsNodeal(@ApiParam(value = "签名", required = true) @RequestParam(value = "sign")String sign,
-			@ApiParam(value = "时间戳", required = true) @RequestParam(value = "noncestr")String noncestr,
+			@ApiParam(value = "时间戳( yyyy-MM-dd HH:mm:ss)", required = true) @RequestParam(value = "noncestr")String noncestr,
 			@ApiParam(value = "场所类型", required = true) @RequestParam("tradeType")String tradeType,
 			@ApiParam(value = "地区编码", required = false) @RequestParam(value="areaCode", required = false)String areaCode,
 			@ApiParam(value = "起始时间(yyyy-MM-dd HH:mm:ss)") @RequestParam(value="beginTime", required = false)String beginTime,
@@ -430,7 +434,7 @@ public class VideoController{
 	 * */
 	@RequestMapping(value = {"/alarmse"},method = RequestMethod.GET,produces = MediaType.APPLICATION_JSON_UTF8_VALUE)
 	public ResponseEntity<Result> getAlarmsException(@ApiParam(value = "签名", required = true) @RequestParam(value = "sign")String sign,
-			@ApiParam(value = "时间戳", required = true) @RequestParam(value = "noncestr")String noncestr,
+			@ApiParam(value = "时间戳( yyyy-MM-dd HH:mm:ss)", required = true) @RequestParam(value = "noncestr")String noncestr,
 			@ApiParam(value = "用户编号", required = true) @RequestParam("userCode")String userCode,
 			@ApiParam(value = "报警记录编号") @RequestParam(value ="alarmCode", required = false)String alarmCode,
 			@ApiParam(value = "处置方式") @RequestParam(value ="dealWay", required = false)String dealWay) {
@@ -451,6 +455,32 @@ public class VideoController{
 				r.setMsg("查询失败");
 				e.printStackTrace();
 			}
+		}
+		return new ResponseEntity<Result>(r, HttpStatus.OK);
+	}
+	/**
+	 * 3.	获取视频分布点
+	 * */
+	@RequestMapping(value = {"/servers"},method = RequestMethod.GET,produces = MediaType.APPLICATION_JSON_UTF8_VALUE)
+	public ResponseEntity<Result> getPlaces(@ApiParam(value = "签名", required = true) @RequestParam(value = "sign")String sign,
+			@ApiParam(value = "时间戳( yyyy-MM-dd HH:mm:ss)", required = true) @RequestParam(value = "noncestr")String noncestr,
+			@ApiParam(value = "地区编码") @RequestParam(value ="officeCode", required = false)String officeCode,
+			@ApiParam(value = "域名") @RequestParam(value ="domain", required = false)String domain) {
+		Result r=new Result();
+		try {
+			String andsql=MessageFormat.format("{0} {1} ",
+					StringUtils.isBlank(officeCode)?"":"and a.office like '"+removeZero(officeCode)+"%'",
+					StringUtils.isBlank(domain)?"":"and a.domain_name='"+domain+"'");
+			//TODO : 查询条件 ;签名;时间戳" 
+			HashMap<String,Object> param=new HashMap<String,Object>();
+			param.put("andsql",andsql);
+			List<BizMediaServer> ms = bizMediaServerService.queryBizMediaServer(param);
+			r.setData(ms);
+		} catch (Exception e) {
+			r.setSuccess(false);
+			r.setErrCode(Result.ERR_CODE);
+			r.setMsg("查询失败");
+			e.printStackTrace();
 		}
 		return new ResponseEntity<Result>(r, HttpStatus.OK);
 	}
@@ -488,4 +518,5 @@ public class VideoController{
 		}
     	return result;
     }
+    
 }
