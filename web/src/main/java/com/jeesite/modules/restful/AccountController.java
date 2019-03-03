@@ -1,8 +1,10 @@
 package com.jeesite.modules.restful;
 
+import java.text.MessageFormat;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.function.Consumer;
 
 import org.apache.commons.lang3.StringUtils;
@@ -16,6 +18,9 @@ import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
+import com.jeesite.common.mapper.JsonMapper;
+import com.jeesite.modules.biz.entity.BizMediaServer;
+import com.jeesite.modules.biz.service.BizMediaServerService;
 import com.jeesite.modules.restful.dto.Result;
 import com.jeesite.modules.sys.entity.Area;
 import com.jeesite.modules.sys.entity.EmpUser;
@@ -35,6 +40,8 @@ public class AccountController {
 	private OfficeService officeService;
 	@Autowired
 	private AreaService areaService;
+	@Autowired
+	private BizMediaServerService bizMediaServerService;
 	/**
 	 * 1.	获取当前用户账号基本配置信息
 	 * */
@@ -177,5 +184,60 @@ public class AccountController {
 				}
 			});
 		}
+	}
+	/**
+	 * 3.	获取服务器地址
+	 * */
+	@RequestMapping(value = {"/servers"},method = RequestMethod.GET,produces = MediaType.APPLICATION_JSON_UTF8_VALUE)
+	public ResponseEntity<Result> servers(@ApiParam(value = "签名", required = true) @RequestParam(value = "sign")String sign,
+			@ApiParam(value = "时间戳( yyyy-MM-dd HH:mm:ss)", required = true) @RequestParam(value = "noncestr")String noncestr,
+			@ApiParam(value = "地区编码") @RequestParam(value ="office", required = false)String office,
+			@ApiParam(value = "域名") @RequestParam(value ="domain", required = false)String domain) {
+		Result r=new Result();
+		try {
+			String andsql=MessageFormat.format("{0} {1} ",
+					StringUtils.isBlank(office)?"":"and a.office like '"+removeZero(office)+"%'",
+					StringUtils.isBlank(domain)?"":"and a.domain_name='"+domain+"'");
+			//TODO : 查询条件 ;签名;时间戳" 
+			HashMap<String,Object> param=new HashMap<String,Object>();
+			param.put("andsql",andsql);
+			List<BizMediaServer> ms = bizMediaServerService.queryBizMediaServer(param);
+			List<Map<String,Object>> list=JsonMapper.fromJson(JsonMapper.getInstance().toJson(ms),List.class);
+			list.forEach(new Consumer<Map<String,Object>>() {
+				@Override
+				public void accept(Map<String,Object> t) {
+					Map<String,Object> om=(Map<String,Object>)t.get("office");
+					t.remove("isNewRecord");
+					ArrayList<String> fieldNames=new ArrayList<String>();
+					om.keySet().forEach(new Consumer<String>() {
+						@Override
+						public void accept(String key) {
+							if(!key.equals("officeCode")&&!key.equals("officeName")) {
+								fieldNames.add(key);
+							}
+						}
+					});
+					fieldNames.forEach(new Consumer<String>() {
+						@Override
+						public void accept(String key) {
+							om.remove(key);
+						}
+					});
+				}
+			});
+			r.setData(list);
+		} catch (Exception e) {
+			r.setSuccess(false);
+			r.setErrCode(Result.ERR_CODE);
+			r.setMsg("查询失败");
+			e.printStackTrace();
+		}
+		return new ResponseEntity<Result>(r, HttpStatus.OK);
+	}
+	private static String removeZero(String code) {
+		if(code.endsWith("0")) {
+			code=removeZero(code.substring(0, code.length()-1));
+		}
+		return code;
 	}
 }

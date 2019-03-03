@@ -65,8 +65,6 @@ public class VideoController{
 	@Autowired
 	private BizRtspUrlService bizRtspUrlService;
 	@Autowired
-	private BizMediaServerService bizMediaServerService;
-	@Autowired
 	private Gson gson;
 	private static SimpleDateFormat sdf=new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
 	private static SimpleDateFormat sdfd=new SimpleDateFormat("yyyy-MM-dd");
@@ -455,32 +453,6 @@ public class VideoController{
 				r.setMsg("查询失败");
 				e.printStackTrace();
 			}
-		}
-		return new ResponseEntity<Result>(r, HttpStatus.OK);
-	}
-	/**
-	 * 3.	获取视频分布点
-	 * */
-	@RequestMapping(value = {"/servers"},method = RequestMethod.GET,produces = MediaType.APPLICATION_JSON_UTF8_VALUE)
-	public ResponseEntity<Result> getPlaces(@ApiParam(value = "签名", required = true) @RequestParam(value = "sign")String sign,
-			@ApiParam(value = "时间戳( yyyy-MM-dd HH:mm:ss)", required = true) @RequestParam(value = "noncestr")String noncestr,
-			@ApiParam(value = "地区编码") @RequestParam(value ="officeCode", required = false)String officeCode,
-			@ApiParam(value = "域名") @RequestParam(value ="domain", required = false)String domain) {
-		Result r=new Result();
-		try {
-			String andsql=MessageFormat.format("{0} {1} ",
-					StringUtils.isBlank(officeCode)?"":"and a.office like '"+removeZero(officeCode)+"%'",
-					StringUtils.isBlank(domain)?"":"and a.domain_name='"+domain+"'");
-			//TODO : 查询条件 ;签名;时间戳" 
-			HashMap<String,Object> param=new HashMap<String,Object>();
-			param.put("andsql",andsql);
-			List<BizMediaServer> ms = bizMediaServerService.queryBizMediaServer(param);
-			r.setData(ms);
-		} catch (Exception e) {
-			r.setSuccess(false);
-			r.setErrCode(Result.ERR_CODE);
-			r.setMsg("查询失败");
-			e.printStackTrace();
 		}
 		return new ResponseEntity<Result>(r, HttpStatus.OK);
 	}

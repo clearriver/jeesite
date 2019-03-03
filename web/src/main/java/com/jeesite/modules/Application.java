@@ -14,7 +14,10 @@ import org.springframework.boot.web.servlet.support.SpringBootServletInitializer
 import org.springframework.context.annotation.Bean;
 import org.springframework.web.client.RestTemplate;
 
+import com.google.gson.ExclusionStrategy;
+import com.google.gson.FieldAttributes;
 import com.google.gson.Gson;
+import com.google.gson.GsonBuilder;
 
 import springfox.documentation.builders.PathSelectors;
 import springfox.documentation.builders.RequestHandlerSelectors;
@@ -67,5 +70,16 @@ public class Application extends SpringBootServletInitializer {
 	  @Bean
 	  public Gson createGson() {
 		  return new Gson();
+//		  return new GsonBuilder().setExclusionStrategies(new ExclusionStrategy(){
+//			@Override
+//			public boolean shouldSkipField(FieldAttributes f) {
+//				return false;
+//			}
+//
+//			@Override
+//			public boolean shouldSkipClass(Class<?> clazz) {
+//				return false;
+//			}
+//		  }).create();
 	  }
 }
