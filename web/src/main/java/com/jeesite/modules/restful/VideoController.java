@@ -30,6 +30,7 @@ import org.springframework.web.client.RestTemplate;
 
 import com.google.gson.Gson;
 import com.jeesite.common.collect.ListUtils;
+import com.jeesite.common.mapper.JsonMapper;
 import com.jeesite.modules.Constants;
 import com.jeesite.modules.biz.entity.BizAlarm;
 import com.jeesite.modules.biz.entity.BizMediaServer;
@@ -64,6 +65,8 @@ public class VideoController{
 	private AreaService areaService;
 	@Autowired
 	private BizRtspUrlService bizRtspUrlService;
+	@Autowired
+	private BizMediaServerService bizMediaServerService;
 	@Autowired
 	private Gson gson;
 	private static SimpleDateFormat sdf=new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
@@ -453,6 +456,58 @@ public class VideoController{
 				r.setMsg("查询失败");
 				e.printStackTrace();
 			}
+		}
+		return new ResponseEntity<Result>(r, HttpStatus.OK);
+	}
+	@RequestMapping(value = {"/server/{place}"},method = RequestMethod.GET,produces = MediaType.APPLICATION_JSON_UTF8_VALUE)
+	public ResponseEntity<Result> getServerByPlace(@ApiParam(value = "许可证号或编号", required = true) @PathVariable("place")String place,
+			@ApiParam(value = "服务器类型(1.多媒体服务器,2.分析服务器)") @RequestParam(value ="type", required = false)String type) {
+		Result r=new Result();
+		if(StringUtils.isNotBlank(place)){
+			BizPlace bp = null;
+			try {
+				bp = bizPlaceService.get(place);
+				if(bp!=null) {
+					String office=bp.getArea().getAreaCode();
+					String andsql=MessageFormat.format("{0} {1} ",
+							StringUtils.isBlank(office)?"":"and a.office = '"+office+"'",
+							StringUtils.isBlank(type)?"":"and a.server_type='"+type+"'");
+					HashMap<String,Object> param=new HashMap<String,Object>();
+					param.put("andsql",andsql);
+					List<BizMediaServer> ms = bizMediaServerService.queryBizMediaServer(param);
+					List<Map<String,Object>> list=JsonMapper.fromJson(JsonMapper.getInstance().toJson(ms),List.class);
+					list.forEach(new Consumer<Map<String,Object>>() {
+						@Override
+						public void accept(Map<String,Object> t) {
+							Map<String,Object> om=(Map<String,Object>)t.get("office");
+							t.remove("isNewRecord");
+							ArrayList<String> fieldNames=new ArrayList<String>();
+							om.keySet().forEach(new Consumer<String>() {
+								@Override
+								public void accept(String key) {
+									if(!key.equals("officeCode")&&!key.equals("officeName")) {
+										fieldNames.add(key);
+									}
+								}
+							});
+							fieldNames.forEach(new Consumer<String>() {
+								@Override
+								public void accept(String key) {
+									om.remove(key);
+								}
+							});
+						}
+					});
+					r.setData(list);
+				}
+			} catch (Exception e) {
+				e.printStackTrace();
+			}
+		}
+		if(r.getData()==null) {
+			r.setSuccess(false);
+			r.setErrCode(Result.ERR_CODE);
+			r.setMsg(Result.FAIL);
 		}
 		return new ResponseEntity<Result>(r, HttpStatus.OK);
 	}

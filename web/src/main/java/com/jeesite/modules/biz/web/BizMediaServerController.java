@@ -96,11 +96,12 @@ public class BizMediaServerController extends BaseController {
 			r=list==null||list.size()==0?null:list.get(0);
 		}else {
 			String id=bizMediaServer.getId();
+			r=bizMediaServerService.get(id);
 			bizMediaServer.setId(null);
 			List<BizMediaServer> list=bizMediaServerService.findList(bizMediaServer);
-			r=list==null||list.size()==0?null:list.get(0);
-			if(r!=null&&!id.equals(r.getId())) {
-				return renderResult(Global.FALSE, text("保存服务器地址失败！已经存在该服务器"));
+			BizMediaServer e=list==null||list.size()==0?null:list.get(0);
+			if(e!=null&&!id.equals(e.getId())) {
+				return renderResult(Global.FALSE, text("保存服务器地址失败！该地区已经存在该类型的服务器"));
 			}
 		}
 		if(r!=null) {

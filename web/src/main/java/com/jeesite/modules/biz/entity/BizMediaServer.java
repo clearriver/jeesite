@@ -41,7 +41,10 @@ public class BizMediaServer extends DataEntity<BizMediaServer> {
 	public BizMediaServer() {
 		this(null,null,null,null,null);
 	}
-
+	public BizMediaServer(String id) {
+		this.id=id;
+		this.isNewRecord=true;
+	}
 	public BizMediaServer(String office, String domainName, String serverIp, String serverPort, String serverType){
 		this.office = new Office();
 		this.office.setOfficeCode(office);
