@@ -11,9 +11,14 @@ var themeName = @Global.getConfig('web.view.themeName', 'default');
 <% print('<'+'html'+'><'+'head'+'>'); %>
 <% include('/include/head.html', {title: text(title!)}){} %>
 <% include('/themes/'+themeName+'/include/header.html', {libs: libs!}){} %>
-</head><body class="hold-transition ${bodyClass!}">
+<% var userCode=@UserUtils.getUser().getUserCode();  %>
+</head><body class="hold-transition ${bodyClass!}"  ${userCode==null?'style="height: 100%;"':''}>
 <% if (!@ListUtils.inString('layout', libs!)){ %>
-<div class="wrapper">${layoutContent}</div>
+	<% if(userCode==null){ %>
+	<div class="wrapper" style="background-image: url(${ctxStatic}/adminlte/img/loginBg.jpg);background-repeat:no-repeat; background-size:100% 100%;-moz-background-size:100% 100%;" >${layoutContent}</div>
+	<% }else{ %>
+	<div class="wrapper">${layoutContent}</div>
+	<% } %>
 <% }else{ %>${layoutContent}<% } %>
 <a id="scroll-up" href="#" class="btn btn-sm"><i class="fa fa-angle-double-up"></i></a>
 <% include('/themes/'+themeName+'/include/footer.html', {libs: libs!}){} %>

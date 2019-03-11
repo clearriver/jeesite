@@ -283,7 +283,7 @@ public class VideoController{
 			String andsql=MessageFormat.format("{0} {1} {2} ",
 					"0".equals(tradeType)?"":"and p.trade_type='"+tradeType+"'",
 					StringUtils.isBlank(areaCode)?"":"and p.area like '"+removeZero(areaCode)+"%'",
-					StringUtils.isBlank(placeName)?"":"and p.place_name='"+placeName+"'");
+					StringUtils.isBlank(placeName)?"":"and p.place_name like '%"+placeName+"%'");
 			//TODO : 查询条件 ;签名;时间戳" 
 			HashMap<String,Object> param=new HashMap<String,Object>();
 			param.put("andsql",andsql);
@@ -372,7 +372,7 @@ public class VideoController{
 						"0".equals(tradeType)?"":"and p.trade_type='"+tradeType+"'",
 						"0".equals(alarmType)?"":"and a.alarm_type='"+alarmType+"'",
 						StringUtils.isBlank(areaCode)?"":"and p.area_code='"+areaCode+"'",
-						StringUtils.isBlank(placeName)?"":"and p.place_name='"+placeName+"'",
+						StringUtils.isBlank(placeName)?"":"and p.place_name like '%"+placeName+"%'",
 						StringUtils.isBlank(alarmTime)?"":"and date_format(a.alarm_time, '%Y-%m-%d')='"+alarmTime+"'");
 				//TODO : 添加按alarmTime 查询条件 ;签名;时间戳" 
 				HashMap<String,Object> bp=new HashMap<String,Object>();
