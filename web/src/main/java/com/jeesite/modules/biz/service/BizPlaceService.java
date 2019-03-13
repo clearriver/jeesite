@@ -59,6 +59,27 @@ public class BizPlaceService extends CrudService<BizPlaceDao, BizPlace> {
 //			}
 		}
 		return bp;
+	}	
+	public BizPlace getBizPlace(String bizPlace) {
+		BizPlace bp=super.get(bizPlace);
+		if(bp!=null) {
+			String andsql=MessageFormat.format("and r.place_code=''{0}'' ",bp.getPlaceCode());
+			HashMap<String,Object> param=new HashMap<String,Object>();
+			param.put("andsql",andsql);
+			List<BizRtspUrl> bizRtspUrlList=this.dao.queryRtspUrl(param);
+			if(bizRtspUrlList!=null) {
+				bp.setBizRtspUrlList(bizRtspUrlList);
+			}
+			
+			andsql=MessageFormat.format("and a.place_code=''{0}'' ",bp.getPlaceCode());
+			param=new HashMap<String,Object>();
+			param.put("andsql",andsql);
+			List<BizAlarm> bizAlarmList=this.dao.queryBizAlarm(param);
+			if(bizAlarmList!=null) {
+				bp.setBizAlarmList(bizAlarmList);
+			}
+		}
+		return bp;
 	}
 	public List<BizAlarm> queryBizAlarm(Map<String,Object> param){
 		return dao.queryBizAlarm(param);

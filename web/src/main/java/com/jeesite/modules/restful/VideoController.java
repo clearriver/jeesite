@@ -97,33 +97,41 @@ public class VideoController{
 			r.setMsg("日期格式不对");
 		}
 		if(r.isSuccess()) {
-			BizPlace bp=bizPlaceService.get(place);
-			if(bp!=null) {
-				BizAlarm bizAlarm=new BizAlarm();
-				bizAlarm.setAlarmCode(place+"_"+bp.getBizAlarmList().size());
-				bizAlarm.setPlaceCode(place);
-				bizAlarm.setSign(sign);
-				bizAlarm.setAlarmTime(dt);
-				bizAlarm.setVideoUrl(videoUrl);
-				bizAlarm.setOosUrl(lookImg);
-				bizAlarm.setAlarmType(typeStatus);
-				bizAlarm.setCreateDate(new Date());
-				bizAlarm.setUpdateDate(new Date());
-				try {
-					bizAlarmService.save(bizAlarm);
-					r.setData(bizAlarm);
-				} catch (Exception e) {
+			synchronized(place){
+				BizPlace bp=bizPlaceService.getBizPlace(place);
+				if(bp!=null) {
+					String[] alarmCodes=bp.getBizAlarms();
+					long max=0;
+					for(String c:alarmCodes) {
+						String temp=c.split("_")[1];
+						max=max<Long.parseLong(temp)?Long.parseLong(temp):max;
+					}
+					BizAlarm bizAlarm=new BizAlarm();
+					bizAlarm.setAlarmCode(place+"_"+(max+1));
+					bizAlarm.setPlaceCode(place);
+					bizAlarm.setSign(sign);
+					bizAlarm.setAlarmTime(dt);
+					bizAlarm.setVideoUrl(videoUrl);
+					bizAlarm.setOosUrl(lookImg);
+					bizAlarm.setAlarmType(typeStatus);
+					bizAlarm.setCreateDate(new Date());
+					bizAlarm.setUpdateDate(new Date());
+					try {
+						bizAlarmService.save(bizAlarm);
+						r.setData(bizAlarm);
+					} catch (Exception e) {
+						r.setSuccess(false);
+						r.setErrCode(Result.ERR_CODE);
+						r.setMsg("保存失败");
+						r.setData(null);
+						e.printStackTrace();
+					}
+				}else {
+					r.setData(null);
 					r.setSuccess(false);
 					r.setErrCode(Result.ERR_CODE);
-					r.setMsg("保存失败");
-					r.setData(null);
-					e.printStackTrace();
+					r.setMsg("视频场所编号不存在");
 				}
-			}else {
-				r.setData(null);
-				r.setSuccess(false);
-				r.setErrCode(Result.ERR_CODE);
-				r.setMsg("视频场所编号不存在");
 			}
 		}
 		return new ResponseEntity<Result>(r, HttpStatus.OK);
