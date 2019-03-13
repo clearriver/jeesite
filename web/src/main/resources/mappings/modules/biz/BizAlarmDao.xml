@@ -18,6 +18,6 @@
 		<where>
 			a.place_code=p.place_code ${andsql} 
 		</where>
-		ORDER BY a.place_code
+		ORDER BY a.alarm_time desc limit 1000 
 	</select>
 </mapper>
