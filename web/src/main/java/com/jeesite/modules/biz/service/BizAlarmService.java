@@ -5,9 +5,10 @@ package com.jeesite.modules.biz.service;
 
 import java.util.List;
 import java.util.Map;
-
+import java.util.function.Consumer;
 import javax.validation.ConstraintViolationException;
 
+import org.apache.commons.lang3.StringUtils;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
@@ -20,6 +21,8 @@ import com.jeesite.common.validator.ValidatorUtils;
 import com.jeesite.modules.biz.dao.BizAlarmDao;
 import com.jeesite.modules.biz.entity.BizAlarm;
 import com.jeesite.modules.file.utils.FileUploadUtils;
+import com.jeesite.modules.sys.entity.Config;
+import com.jeesite.modules.sys.utils.ConfigUtils;
 
 /**
  * 场所表Service
@@ -45,7 +48,31 @@ public class BizAlarmService extends CrudService<BizAlarmDao, BizAlarm> {
 	 * @return
 	 */
 	public List<Map<String, Object>> queryMap(Map<String,Object> param) {
-		return this.dao.queryMap(param);
+		List<Map<String, Object>> r=this.dao.queryMap(param);
+		Config oss_host=ConfigUtils.getConfig("oss_host");
+		Config oss_inner_host=ConfigUtils.getConfig("oss_inner_host");
+		String oss_host_str=oss_host==null?"":oss_host.getConfigValue();
+		String oss_inner_host_str=oss_inner_host==null?"":oss_inner_host.getConfigValue();
+		if(StringUtils.isNotBlank(oss_host_str)&&StringUtils.isNotBlank(oss_inner_host_str)) {
+			String[] oss_inner_host_strs=oss_inner_host_str.split(",");
+			r.forEach(new Consumer<Map<String, Object>>() {
+				@Override
+				public void accept(Map<String, Object> t) {
+					if(t.containsKey("oosUrl")&&t.get("oosUrl")!=null) {
+						String oosUrl[]=t.get("oosUrl").toString().split(",");
+						for(int i=0;i<oosUrl.length;i++) {
+							for(int j=0;j<oss_inner_host_strs.length;j++) {
+								if(oosUrl[i].startsWith(oss_inner_host_strs[j])) {
+									oosUrl[i]=oss_host_str+oosUrl[i].substring(oss_inner_host_strs[j].length());
+								}
+							}
+						}
+						t.put("oosUrl", StringUtils.join(oosUrl,","));
+					}
+				}
+			});
+		}
+		return r;
 	}
 	/**
 	 * 查询分页数据
