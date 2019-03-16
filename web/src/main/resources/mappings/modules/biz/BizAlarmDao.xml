@@ -13,11 +13,18 @@
 	</select> -->
 	
 	<select id="queryMap" resultType="java.util.HashMap" parameterType="hashmap">
-		SELECT a.alarm_code alarmCode,a.place_code placeCode,a.alarm_type alarmType,a.alarm_time alarmTime,a.deal_way dealWay,a.oos_url oosUrl,a.sign sign,p.place_name placeName  
+		SELECT a.alarm_code alarmCode,a.place_code placeCode,a.alarm_type alarmType,a.alarm_time alarmTime,a.deal_way dealWay,a.oos_url oosUrl,a.video_url videoUrl,a.sign sign,p.place_name placeName  
 		FROM ${_prefix}biz_alarm a,${_prefix}biz_place p
 		<where>
 			a.place_code=p.place_code ${andsql} 
 		</where>
 		ORDER BY a.alarm_time desc limit 1000 
+	</select>
+	<select id="queryCount" resultType="long" parameterType="hashmap">
+		SELECT count(a.alarm_code)   
+		FROM ${_prefix}biz_alarm a,${_prefix}biz_place p
+		<where>
+			a.place_code=p.place_code ${andsql} 
+		</where>
 	</select>
 </mapper>

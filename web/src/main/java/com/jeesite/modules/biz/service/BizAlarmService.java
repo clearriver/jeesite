@@ -69,10 +69,24 @@ public class BizAlarmService extends CrudService<BizAlarmDao, BizAlarm> {
 						}
 						t.put("oosUrl", StringUtils.join(oosUrl,","));
 					}
+					if(t.containsKey("videoUrl")&&t.get("videoUrl")!=null) {
+						String videoUrl[]=t.get("videoUrl").toString().split(",");
+						for(int i=0;i<videoUrl.length;i++) {
+							for(int j=0;j<oss_inner_host_strs.length;j++) {
+								if(videoUrl[i].startsWith(oss_inner_host_strs[j])) {
+									videoUrl[i]=oss_host_str+videoUrl[i].substring(oss_inner_host_strs[j].length());
+								}
+							}
+						}
+						t.put("videoUrl", StringUtils.join(videoUrl,","));
+					}
 				}
 			});
 		}
 		return r;
+	}
+	public Long queryCount(Map<String,Object> param) {
+		return dao.queryCount(param);
 	}
 	/**
 	 * 查询分页数据

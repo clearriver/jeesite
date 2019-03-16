@@ -18,7 +18,7 @@
 		<where>
 			1=1 ${andsql} 
 		</where>
-		ORDER BY p.place_code
+		ORDER BY p.place_code ${maxnum} 
 	</select>
 	<select id="queryRtspUrl" resultType="BizRtspUrl" parameterType="hashmap">
 		SELECT r.rtsp_url rtspUrl,r.place_code placeCode,r.online online  

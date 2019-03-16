@@ -41,8 +41,10 @@ import com.jeesite.modules.biz.service.BizMediaServerService;
 import com.jeesite.modules.biz.service.BizPlaceService;
 import com.jeesite.modules.biz.service.BizRtspUrlService;
 import com.jeesite.modules.restful.dto.Result;
+import com.jeesite.modules.sys.entity.DictData;
 import com.jeesite.modules.sys.service.AreaService;
 import com.jeesite.modules.sys.utils.ConfigUtils;
+import com.jeesite.modules.sys.utils.DictUtils;
 import com.jeesite.modules.util.MD5Util;
 
 import io.swagger.annotations.ApiParam;
@@ -114,6 +116,7 @@ public class VideoController{
 					bizAlarm.setVideoUrl(videoUrl);
 					bizAlarm.setOosUrl(lookImg);
 					bizAlarm.setAlarmType(typeStatus);
+					bizAlarm.setDealWay("1");
 					bizAlarm.setCreateDate(new Date());
 					bizAlarm.setUpdateDate(new Date());
 					try {
@@ -187,6 +190,7 @@ public class VideoController{
 //							bizAlarm.setSign(sign);
 //							bizAlarm.setOosUrl(lookImg);
 							bizAlarm.setAlarmType("1");
+							bizAlarm.setDealWay("1");
 							bizAlarm.setCreateDate(new Date());
 							bizAlarm.setUpdateDate(new Date());
 							bizAlarm.setCreateBy("API");
@@ -285,16 +289,27 @@ public class VideoController{
 			@ApiParam(value = "时间戳( yyyy-MM-dd HH:mm:ss)", required = true) @RequestParam(value = "noncestr")String noncestr,
 			@ApiParam(value = "场所类型", required = true) @RequestParam("tradeType")String tradeType,
 			@ApiParam(value = "地区编码") @RequestParam(value ="areaCode", required = false)String areaCode,
-			@ApiParam(value = "场所名称") @RequestParam(value ="placeName", required = false)String placeName) {
+			@ApiParam(value = "场所名称或编号") @RequestParam(value ="placeName", required = false)String placeName,
+			@ApiParam(value = "最大条数") @RequestParam(value ="maxNum", required = false)String maxNum) {
 		Result r=new Result();
 		try {
 			String andsql=MessageFormat.format("{0} {1} {2} ",
 					"0".equals(tradeType)?"":"and p.trade_type='"+tradeType+"'",
 					StringUtils.isBlank(areaCode)?"":"and p.area like '"+removeZero(areaCode)+"%'",
-					StringUtils.isBlank(placeName)?"":"and p.place_name like '%"+placeName+"%'");
+					StringUtils.isBlank(placeName)?"":"and (p.place_code like '%"+placeName+"%' or p.place_name like '%"+placeName+"%' )");
 			//TODO : 查询条件 ;签名;时间戳" 
 			HashMap<String,Object> param=new HashMap<String,Object>();
 			param.put("andsql",andsql);
+			if(StringUtils.isNotBlank(maxNum)) {
+				try {
+					Integer max=Integer.parseInt(maxNum);
+					if(max>0) {
+						param.put("maxnum", "limit "+max);
+					}
+				} catch (Exception e) {
+					e.printStackTrace();
+				}
+			}
 			List<Map<String, Object>> eu = bizPlaceService.queryMap(param);
 			r.setData(eu);
 			ArrayList<String> pclist=new ArrayList<String>();
@@ -403,7 +418,7 @@ public class VideoController{
 	public ResponseEntity<Result> getAlarmsNodeal(@ApiParam(value = "签名", required = true) @RequestParam(value = "sign")String sign,
 			@ApiParam(value = "时间戳( yyyy-MM-dd HH:mm:ss)", required = true) @RequestParam(value = "noncestr")String noncestr,
 			@ApiParam(value = "场所类型", required = true) @RequestParam("tradeType")String tradeType,
-			@ApiParam(value = "地区编码", required = false) @RequestParam(value="areaCode", required = false)String areaCode,
+			@ApiParam(value = "地区编码") @RequestParam(value="areaCode", required = false)String areaCode,
 			@ApiParam(value = "起始时间(yyyy-MM-dd HH:mm:ss)") @RequestParam(value="beginTime", required = false)String beginTime,
 			@ApiParam(value = "处置方式") @RequestParam(value="dealWay", required = false)String dealWay) {
 		Result r=new Result();
@@ -516,6 +531,90 @@ public class VideoController{
 			r.setSuccess(false);
 			r.setErrCode(Result.ERR_CODE);
 			r.setMsg(Result.FAIL);
+		}
+		return new ResponseEntity<Result>(r, HttpStatus.OK);
+	}
+	/**6
+	 * type: 1.误报, 2.下发检查查
+	 * */
+	@RequestMapping(value = {"/alarm/{alarmCode}"},method = RequestMethod.POST,produces = MediaType.APPLICATION_JSON_UTF8_VALUE)
+	public ResponseEntity<Result> processAlarm(@PathVariable("alarmCode")String alarmCode,
+			@ApiParam(value = "签名", required = true) @RequestParam(value = "sign")String sign,
+			@ApiParam(value = "时间戳( yyyy-MM-dd HH:mm:ss)", required = true) @RequestParam(value = "noncestr")String noncestr,
+			@ApiParam(value = "处理结果(4:现场检查,3:分配检查,2:确认误报,1:未处置)") @RequestParam(value ="type", required = true)String type) {
+		Result r=new Result();
+		HashMap<String,Boolean> m=new HashMap<String,Boolean>();
+		m.put("exists",false);
+		List<DictData> dicts=DictUtils.getDictList("sys_biz_deal_way");
+		dicts.forEach(new Consumer<DictData>() {
+			@Override
+			public void accept(DictData t) {
+				if(t.getDictCode().equals(type)) {
+					m.put("exists",true);
+				}
+			}
+		});
+		if(m.get("exists")) {
+			BizAlarm ba=bizAlarmService.get(alarmCode);
+			if(ba!=null) {
+				ba.setDealWay(type);
+				ba.setUpdateDate(new Date());
+				ba.setIsNewRecord(false);
+				bizAlarmService.save(ba);
+				r.setData(ba);
+			}			
+		}
+		if(r.getData()==null) {
+			r.setSuccess(false);
+			r.setErrCode(Result.ERR_CODE);
+			r.setMsg(Result.FAIL);
+		}
+		return new ResponseEntity<Result>(r, HttpStatus.OK);
+	}
+
+	/**
+	 * 7.	按地区和报警类型,行业类型,处理结果  统计 报警数量,
+	 * */
+	@RequestMapping(value = {"/alarms/stat"},method = RequestMethod.GET,produces = MediaType.APPLICATION_JSON_UTF8_VALUE)
+	public ResponseEntity<Result> getAlarmsStat(@ApiParam(value = "签名", required = true) @RequestParam(value = "sign")String sign,
+			@ApiParam(value = "时间戳( yyyy-MM-dd HH:mm:ss)", required = true) @RequestParam(value = "noncestr")String noncestr,
+			@ApiParam(value = "行业类型") @RequestParam(value ="tradeType", required = false)String tradeType,
+			@ApiParam(value = "报警类型") @RequestParam(value ="alarmType", required = false)String alarmType,
+			@ApiParam(value = "地区编码") @RequestParam(value ="areaCode", required = false)String areaCode,
+			@ApiParam(value = "报警日期(yyyy-MM-dd)") @RequestParam(value ="alarmTime" , required = false)String alarmTime,
+			@ApiParam(value = "场所名称") @RequestParam(value ="placeName", required = false)String placeName,
+			@ApiParam(value = "处理结果(4:现场检查,3:分配检查,2:确认误报,1:未处置)") @RequestParam(value ="type", required = false)String dealWay) {
+		Result r=new Result();
+		Date dt=null;
+		if(StringUtils.isNotBlank(alarmTime)) {
+			try {
+				dt=sdfd.parse(alarmTime);
+			} catch (Exception e) {
+				r.setSuccess(false);
+				r.setErrCode(Result.ERR_CODE);
+				r.setMsg("日期格式不对");
+			}
+		}
+		if(r.isSuccess()) {
+			try {
+				String andsql=MessageFormat.format("{0} {1} {2} {3} {4} {5}",
+						StringUtils.isBlank(tradeType)||"0".equals(tradeType)?"":"and p.trade_type='"+tradeType+"'",
+						StringUtils.isBlank(alarmType)||"0".equals(alarmType)?"":"and a.alarm_type='"+alarmType+"'",
+						StringUtils.isBlank(areaCode)?"":"and p.area_code='"+areaCode+"'",
+						StringUtils.isBlank(placeName)?"":"and p.place_name like '%"+placeName+"%'",
+						StringUtils.isBlank(alarmTime)?"":"and date_format(a.alarm_time, '%Y-%m-%d')='"+alarmTime+"'",
+						StringUtils.isBlank(dealWay)||"0".equals(dealWay)?"":"and a.deal_way='"+dealWay+"'");
+				//TODO : 添加按alarmTime 查询条件 ;签名;时间戳" 
+				HashMap<String,Object> param=new HashMap<String,Object>();
+				param.put("andsql",andsql);
+				Long eu= bizAlarmService.queryCount(param);
+				r.setData(new HashMap<String,Long>(){{put("count",eu);}});
+			} catch (Exception e) {
+				r.setSuccess(false);
+				r.setErrCode(Result.ERR_CODE);
+				r.setMsg("查询失败");
+				e.printStackTrace();
+			}
 		}
 		return new ResponseEntity<Result>(r, HttpStatus.OK);
 	}

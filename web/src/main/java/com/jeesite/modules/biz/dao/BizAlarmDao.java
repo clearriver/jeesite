@@ -18,4 +18,5 @@ import com.jeesite.modules.biz.entity.BizAlarm;
 @MyBatisDao
 public interface BizAlarmDao extends CrudDao<BizAlarm> {
 	public List<Map<String, Object>> queryMap(Map<String,Object> param);
+	public Long queryCount(Map<String,Object> param);
 }
