@@ -670,7 +670,7 @@ public class VideoController{
 				String andsqlaa=MessageFormat.format("{0} {1} {2} ", 
 						StringUtils.isBlank(areaCode)?"":"and pp.area_code='"+areaCode+"'",
 						StringUtils.isBlank(dealWay)||"0".equals(dealWay)?"":"and aa.deal_way='"+dealWay+"'",
-						StringUtils.isBlank(beginTime)?"":"and aa.alarm_time>=STR_TO_DATE('"+beginTime+"','%Y-%m-%d %H:%i:%s')");
+						StringUtils.isBlank(alarmTime)?"":"and aa.alarm_time>=STR_TO_DATE('"+alarmTime+"','%Y-%m-%d %H:%i:%s')");
 				HashMap<String,Object> param=new HashMap<String,Object>();
 				if(StringUtils.isNotBlank(maxNum)&&!"0".equals(maxNum)) {
 					param.put("maxnum",maxNum);
