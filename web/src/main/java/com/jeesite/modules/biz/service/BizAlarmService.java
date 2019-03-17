@@ -88,6 +88,13 @@ public class BizAlarmService extends CrudService<BizAlarmDao, BizAlarm> {
 	public Long queryCount(Map<String,Object> param) {
 		return dao.queryCount(param);
 	}
+	
+	public List<Map<String, Object>> queryByTradeTypeGroup(Map<String,Object> param){
+		return dao.queryByTradeTypeGroup(param);
+	}
+	public List<Map<String, Object>> countByTradeTypeGroup(Map<String,Object> param){
+		return dao.countByTradeTypeGroup(param);
+	}
 	/**
 	 * 查询分页数据
 	 * @param bizAlarm 查询条件

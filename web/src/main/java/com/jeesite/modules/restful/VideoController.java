@@ -618,6 +618,107 @@ public class VideoController{
 		}
 		return new ResponseEntity<Result>(r, HttpStatus.OK);
 	}
+
+	/**
+	 * 8、根据场所类型分组,查询报警记录
+	 * */
+	@RequestMapping(value = {"/alarms/groupstat"},method = RequestMethod.GET,produces = MediaType.APPLICATION_JSON_UTF8_VALUE)
+	public ResponseEntity<Result> getAlarmsByPlaceGroup(@ApiParam(value = "签名", required = true) @RequestParam(value = "sign")String sign,
+			@ApiParam(value = "时间戳( yyyy-MM-dd HH:mm:ss)", required = true) @RequestParam(value = "noncestr")String noncestr,
+			@ApiParam(value = "地区编码") @RequestParam(value="areaCode", required = false)String areaCode,
+			@ApiParam(value = "报警日期(yyyy-MM-dd HH:mm:ss)(如:2019-01-01 00:00:00)") @RequestParam(value="alarmTime", required = false)String alarmTime,
+			@ApiParam(value = "处置方式") @RequestParam(value="type", required = false)String dealWay,
+			@ApiParam(value = "每组最大条数") @RequestParam(value="maxNum", required = false)String maxNum) {
+		Result r=new Result();
+		Date dt=null;
+		if(StringUtils.isNotBlank(alarmTime)) {
+			try {
+				dt=sdf.parse(alarmTime);
+			} catch (Exception e) {
+				r.setSuccess(false);
+				r.setErrCode(Result.ERR_CODE);
+				r.setMsg("日期时间格式不对");
+			}
+		}
+		if(r.isSuccess()) {
+			try {
+				//TODO :  签名; 时间戳
+				String andsqla=MessageFormat.format("{0} {1} {2} ", 
+						StringUtils.isBlank(areaCode)?"":"and p.area_code='"+areaCode+"'",
+						StringUtils.isBlank(dealWay)||"0".equals(dealWay)?"":"and a.deal_way='"+dealWay+"'",
+						StringUtils.isBlank(alarmTime)?"":"and a.alarm_time>=STR_TO_DATE('"+alarmTime+"','%Y-%m-%d %H:%i:%s')");
+				
+				ArrayList<HashMap<String,Object>> list=new ArrayList<HashMap<String,Object>>();
+				List<DictData> dicts=DictUtils.getDictList("sys_biz_trade_type");
+				/*dicts.forEach(new Consumer<DictData>() {
+					@Override
+					public void accept(DictData t) {
+						HashMap<String,Object> dd=new HashMap<String,Object>();
+						dd.put("type",t.getDictValue());
+						dd.put("label",t.getDictLabel());
+						HashMap<String,Object> param=new HashMap<String,Object>();
+						param.put("andsqla",andsql+"and p.trade_type='"+t.getDictValue()+"'");
+						Long count= bizAlarmService.queryCount(param);
+						dd.put("num",count);
+						if(StringUtils.isNotBlank(maxNum)&&!"0".equals(maxNum)) {
+							param.put("maxnum"," limit " + maxNum);
+						}
+						dd.put("data",bizAlarmService.queryMap(param));
+						list.add(dd);
+					}
+				});*/
+				String andsqlaa=MessageFormat.format("{0} {1} {2} ", 
+						StringUtils.isBlank(areaCode)?"":"and pp.area_code='"+areaCode+"'",
+						StringUtils.isBlank(dealWay)||"0".equals(dealWay)?"":"and aa.deal_way='"+dealWay+"'",
+						StringUtils.isBlank(beginTime)?"":"and aa.alarm_time>=STR_TO_DATE('"+beginTime+"','%Y-%m-%d %H:%i:%s')");
+				HashMap<String,Object> param=new HashMap<String,Object>();
+				if(StringUtils.isNotBlank(maxNum)&&!"0".equals(maxNum)) {
+					param.put("maxnum",maxNum);
+				}
+				param.put("andsqla",andsqla);
+				param.put("andsqlaa",andsqlaa);
+				List<Map<String, Object>> dataGroup=bizAlarmService.queryByTradeTypeGroup(param);
+				List<Map<String, Object>> countGroup=bizAlarmService.countByTradeTypeGroup(param);
+				dicts.forEach(new Consumer<DictData>() {
+					@Override
+					public void accept(DictData t) {
+						HashMap<String,Object> dd=new HashMap<String,Object>();
+						dd.put("type",t.getDictValue());
+						dd.put("label",t.getDictLabel());
+						countGroup.forEach(new Consumer<Map<String, Object>>(){
+							@Override
+							public void accept(Map<String, Object> c) {
+								if(t.getDictValue().equals(c.get("tradeType"))) {
+									dd.put("num",c.get("num"));
+								}
+							}
+						});
+						if(!dd.containsKey("num")) {
+							dd.put("num",0);
+						}
+						ArrayList<Map<String, Object>> datalist=new ArrayList<Map<String, Object>>();
+						dataGroup.forEach(new Consumer<Map<String, Object>>(){
+							@Override
+							public void accept(Map<String, Object> d) {
+								if(t.getDictValue().equals(d.get("tradeType"))) {
+									datalist.add(d);
+								}
+							}
+						});
+						dd.put("data", datalist);
+						list.add(dd);
+					}
+				});
+				r.setData(list);
+			} catch (Exception e) {
+				r.setSuccess(false);
+				r.setErrCode(Result.ERR_CODE);
+				r.setMsg("查询失败");
+				e.printStackTrace();
+			}
+		}
+		return new ResponseEntity<Result>(r, HttpStatus.OK);
+	}
 	/**
      * 签名方法
 	*

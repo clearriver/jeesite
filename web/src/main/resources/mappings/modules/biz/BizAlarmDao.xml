@@ -18,7 +18,7 @@
 		<where>
 			a.place_code=p.place_code ${andsql} 
 		</where>
-		ORDER BY a.alarm_time desc limit 1000 
+		ORDER BY a.alarm_time desc ${maxnum}
 	</select>
 	<select id="queryCount" resultType="long" parameterType="hashmap">
 		SELECT count(a.alarm_code)   
@@ -26,5 +26,29 @@
 		<where>
 			a.place_code=p.place_code ${andsql} 
 		</where>
+	</select>
+	<select id="queryByTradeTypeGroup" resultType="java.util.HashMap" parameterType="hashmap">
+		SELECT aa.alarm_code alarmCode,aa.place_code placeCode,aa.alarm_type alarmType,aa.alarm_time alarmTime,aa.deal_way dealWay,aa.oos_url oosUrl,aa.video_url videoUrl,
+		aa.sign sign,pp.place_name placeName,pp.trade_type tradeType 
+		FROM js_biz_alarm aa,js_biz_place pp 
+		where 
+		aa.place_code=pp.place_code ${andsqlaa} 
+		<choose>
+	        <when test="maxnum !=null and maxnum != '' and maxnum !=0 and maxnum !='0' ">
+				and ${maxnum}>(
+				   select count(a.alarm_code) from js_biz_alarm a,js_biz_place p 
+				   where a.place_code=p.place_code ${andsqla} and pp.trade_type=p.trade_type and aa.alarm_time &lt; a.alarm_time
+				) 
+	        </when>
+	        <otherwise>
+	        </otherwise>
+    	</choose>
+		order by aa.alarm_time desc
+	</select>
+	<select id="countByTradeTypeGroup" resultType="java.util.HashMap" parameterType="hashmap">
+		select count(1) num,p.trade_type tradeType  
+		from js_biz_alarm a,js_biz_place p 
+		where a.place_code=p.place_code ${andsqla} 
+		group by p.trade_type
 	</select>
 </mapper>

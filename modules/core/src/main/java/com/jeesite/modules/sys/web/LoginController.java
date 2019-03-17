@@ -3,6 +3,7 @@
  */
 package com.jeesite.modules.sys.web;
 
+import java.io.IOException;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
@@ -34,6 +35,7 @@ import com.jeesite.common.web.CookieUtils;
 import com.jeesite.common.web.http.ServletUtils;
 import com.jeesite.modules.sys.entity.Menu;
 import com.jeesite.modules.sys.entity.User;
+import com.jeesite.modules.sys.utils.ConfigUtils;
 import com.jeesite.modules.sys.utils.PwdUtils;
 import com.jeesite.modules.sys.utils.UserUtils;
 
@@ -245,7 +247,19 @@ public class LoginController extends BaseController{
 				Global.setLang(loginInfo.getParam("lang"), request, response);
 			}
 		}
-
+		//如果登录成功,跳转到前端首页front_end_index
+		String front_end_index=ConfigUtils.getConfig("front_end_index").getConfigValue();
+		if(StringUtils.isNotBlank(front_end_index)&&"0".equals(user.getMgrType())) {
+//			return REDIRECT + front_end_index+(front_end_index.contains("?")?"&":"?")+"userCode="+user.getLoginCode();
+			String redirecturl= front_end_index+(front_end_index.contains("?")?"&":"?")+"userCode="+user.getLoginCode();
+			try {
+				response.setStatus(302);
+				response.getWriter().write("<script>location.href='"+redirecturl+"';</script>");
+			} catch (IOException e) {
+				e.printStackTrace();
+			}
+			return null;
+		}
 		// 获取登录成功页面
 		String successUrl = Global.getProperty("shiro.successUrl");
 		if (!StringUtils.contains(successUrl, "://")){

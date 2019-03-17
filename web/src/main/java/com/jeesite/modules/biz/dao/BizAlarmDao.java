@@ -19,4 +19,6 @@ import com.jeesite.modules.biz.entity.BizAlarm;
 public interface BizAlarmDao extends CrudDao<BizAlarm> {
 	public List<Map<String, Object>> queryMap(Map<String,Object> param);
 	public Long queryCount(Map<String,Object> param);
+	public List<Map<String, Object>> queryByTradeTypeGroup(Map<String,Object> param);
+	public List<Map<String, Object>> countByTradeTypeGroup(Map<String,Object> param);
 }
