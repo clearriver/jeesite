@@ -377,7 +377,8 @@ public class VideoController{
 			@ApiParam(value = "报警类型", required = true) @RequestParam("alarmType")String alarmType,
 			@ApiParam(value = "地区编码") @RequestParam(value ="areaCode", required = false)String areaCode,
 			@ApiParam(value = "报警日期(yyyy-MM-dd)") @RequestParam(value ="alarmTime" , required = false)String alarmTime,
-			@ApiParam(value = "场所名称") @RequestParam(value ="placeName", required = false)String placeName) {
+			@ApiParam(value = "场所名称") @RequestParam(value ="placeName", required = false)String placeName,
+			@ApiParam(value = "最大条数") @RequestParam(value="maxNum", required = false)String maxNum) {
 		Result r=new Result();
 		Date dt=null;
 		if(StringUtils.isNotBlank(alarmTime)) {
@@ -394,12 +395,15 @@ public class VideoController{
 				String andsql=MessageFormat.format("{0} {1} {2} {3} {4}",
 						"0".equals(tradeType)?"":"and p.trade_type='"+tradeType+"'",
 						"0".equals(alarmType)?"":"and a.alarm_type='"+alarmType+"'",
-						StringUtils.isBlank(areaCode)?"":"and p.area_code='"+areaCode+"'",
+						StringUtils.isBlank(areaCode)?"":"and p.area like '"+removeZero(areaCode)+"%'",
 						StringUtils.isBlank(placeName)?"":"and p.place_name like '%"+placeName+"%'",
 						StringUtils.isBlank(alarmTime)?"":"and date_format(a.alarm_time, '%Y-%m-%d')='"+alarmTime+"'");
 				//TODO : 添加按alarmTime 查询条件 ;签名;时间戳" 
 				HashMap<String,Object> bp=new HashMap<String,Object>();
 				bp.put("andsql",andsql);
+				if(StringUtils.isNotBlank(maxNum)) {
+					bp.put("maxnum"," limit "+maxNum);
+				}
 				List<Map<String,Object>> eu = bizAlarmService.queryMap(bp);
 				r.setData(eu);
 			} catch (Exception e) {
@@ -420,7 +424,8 @@ public class VideoController{
 			@ApiParam(value = "场所类型", required = true) @RequestParam("tradeType")String tradeType,
 			@ApiParam(value = "地区编码") @RequestParam(value="areaCode", required = false)String areaCode,
 			@ApiParam(value = "起始时间(yyyy-MM-dd HH:mm:ss)") @RequestParam(value="beginTime", required = false)String beginTime,
-			@ApiParam(value = "处置方式") @RequestParam(value="dealWay", required = false)String dealWay) {
+			@ApiParam(value = "处置方式") @RequestParam(value="dealWay", required = false)String dealWay,
+			@ApiParam(value = "最大条数") @RequestParam(value="maxNum", required = false)String maxNum) {
 		Result r=new Result();
 		Date dt=null;
 		if(StringUtils.isNotBlank(beginTime)) {
@@ -436,12 +441,15 @@ public class VideoController{
 			try {
 				String andsql=MessageFormat.format("{0} {1} {2} {3} ", 
 						"0".equals(tradeType)?"":"and p.trade_type='"+tradeType+"'",
-						StringUtils.isBlank(areaCode)?"":"and p.area_code='"+areaCode+"'",
+						StringUtils.isBlank(areaCode)?"":"and p.area like '"+removeZero(areaCode)+"%'",
 						StringUtils.isBlank(dealWay)?"":"and a.deal_way='"+dealWay+"'",
 						StringUtils.isBlank(beginTime)?"":"and a.alarm_time>=STR_TO_DATE('"+beginTime+"','%Y-%m-%d %H:%i:%s')");
 				//TODO :  签名; 时间戳
 				HashMap<String,Object> bp=new HashMap<String,Object>();
 				bp.put("andsql",andsql);
+				if(StringUtils.isNotBlank(maxNum)) {
+					bp.put("maxnum"," limit "+maxNum);
+				}
 				List<Map<String,Object>> eu = bizAlarmService.queryMap(bp);
 				r.setData(eu);
 			} catch (Exception e) {
@@ -461,7 +469,8 @@ public class VideoController{
 			@ApiParam(value = "时间戳( yyyy-MM-dd HH:mm:ss)", required = true) @RequestParam(value = "noncestr")String noncestr,
 			@ApiParam(value = "用户编号", required = true) @RequestParam("userCode")String userCode,
 			@ApiParam(value = "报警记录编号") @RequestParam(value ="alarmCode", required = false)String alarmCode,
-			@ApiParam(value = "处置方式") @RequestParam(value ="dealWay", required = false)String dealWay) {
+			@ApiParam(value = "处置方式") @RequestParam(value ="dealWay", required = false)String dealWay,
+			@ApiParam(value = "最大条数") @RequestParam(value="maxNum", required = false)String maxNum) {
 		Result r=new Result();
 		if(r.isSuccess()) {
 			try {
@@ -471,6 +480,9 @@ public class VideoController{
 				//TODO :  签名; 时间戳；用户编号
 				HashMap<String,Object> bp=new HashMap<String,Object>();
 				bp.put("andsql",andsql);
+				if(StringUtils.isNotBlank(maxNum)) {
+					bp.put("maxnum"," limit "+maxNum);
+				}
 				List<Map<String,Object>> eu = bizAlarmService.queryMap(bp);
 				r.setData(eu);
 			} catch (Exception e) {
@@ -600,7 +612,7 @@ public class VideoController{
 				String andsql=MessageFormat.format("{0} {1} {2} {3} {4} {5}",
 						StringUtils.isBlank(tradeType)||"0".equals(tradeType)?"":"and p.trade_type='"+tradeType+"'",
 						StringUtils.isBlank(alarmType)||"0".equals(alarmType)?"":"and a.alarm_type='"+alarmType+"'",
-						StringUtils.isBlank(areaCode)?"":"and p.area_code='"+areaCode+"'",
+						StringUtils.isBlank(areaCode)?"":"and p.area like '"+removeZero(areaCode)+"%'",
 						StringUtils.isBlank(placeName)?"":"and p.place_name like '%"+placeName+"%'",
 						StringUtils.isBlank(alarmTime)?"":"and date_format(a.alarm_time, '%Y-%m-%d')='"+alarmTime+"'",
 						StringUtils.isBlank(dealWay)||"0".equals(dealWay)?"":"and a.deal_way='"+dealWay+"'");
@@ -644,7 +656,7 @@ public class VideoController{
 			try {
 				//TODO :  签名; 时间戳
 				String andsqla=MessageFormat.format("{0} {1} {2} ", 
-						StringUtils.isBlank(areaCode)?"":"and p.area_code='"+areaCode+"'",
+						StringUtils.isBlank(areaCode)?"":"and p.area like '"+removeZero(areaCode)+"%'",
 						StringUtils.isBlank(dealWay)||"0".equals(dealWay)?"":"and a.deal_way='"+dealWay+"'",
 						StringUtils.isBlank(alarmTime)?"":"and a.alarm_time>=STR_TO_DATE('"+alarmTime+"','%Y-%m-%d %H:%i:%s')");
 				
@@ -668,7 +680,7 @@ public class VideoController{
 					}
 				});*/
 				String andsqlaa=MessageFormat.format("{0} {1} {2} ", 
-						StringUtils.isBlank(areaCode)?"":"and pp.area_code='"+areaCode+"'",
+						StringUtils.isBlank(areaCode)?"":"and pp.area like '"+removeZero(areaCode)+"%'",
 						StringUtils.isBlank(dealWay)||"0".equals(dealWay)?"":"and aa.deal_way='"+dealWay+"'",
 						StringUtils.isBlank(alarmTime)?"":"and aa.alarm_time>=STR_TO_DATE('"+alarmTime+"','%Y-%m-%d %H:%i:%s')");
 				HashMap<String,Object> param=new HashMap<String,Object>();

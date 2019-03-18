@@ -13,7 +13,8 @@
 	</select> -->
 	
 	<select id="queryMap" resultType="java.util.HashMap" parameterType="hashmap">
-		SELECT a.alarm_code alarmCode,a.place_code placeCode,a.alarm_type alarmType,a.alarm_time alarmTime,a.deal_way dealWay,a.oos_url oosUrl,a.video_url videoUrl,a.sign sign,p.place_name placeName  
+		SELECT a.alarm_code alarmCode,a.place_code placeCode,a.alarm_type alarmType,a.alarm_time alarmTime,a.deal_way dealWay,a.oos_url oosUrl,a.video_url videoUrl,
+		a.sign sign,p.place_name placeName,p.area areaCode   
 		FROM ${_prefix}biz_alarm a,${_prefix}biz_place p
 		<where>
 			a.place_code=p.place_code ${andsql} 
@@ -29,7 +30,7 @@
 	</select>
 	<select id="queryByTradeTypeGroup" resultType="java.util.HashMap" parameterType="hashmap">
 		SELECT aa.alarm_code alarmCode,aa.place_code placeCode,aa.alarm_type alarmType,aa.alarm_time alarmTime,aa.deal_way dealWay,aa.oos_url oosUrl,aa.video_url videoUrl,
-		aa.sign sign,pp.place_name placeName,pp.trade_type tradeType 
+		aa.sign sign,pp.place_name placeName,pp.trade_type tradeType,pp.area areaCode 
 		FROM js_biz_alarm aa,js_biz_place pp 
 		where 
 		aa.place_code=pp.place_code ${andsqlaa} 
