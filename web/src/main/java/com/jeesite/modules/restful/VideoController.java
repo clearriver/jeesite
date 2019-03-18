@@ -46,6 +46,7 @@ import com.jeesite.modules.sys.service.AreaService;
 import com.jeesite.modules.sys.utils.ConfigUtils;
 import com.jeesite.modules.sys.utils.DictUtils;
 import com.jeesite.modules.util.MD5Util;
+import com.jeesite.modules.util.StringTool;
 
 import io.swagger.annotations.ApiParam;
 
@@ -88,7 +89,8 @@ public class VideoController{
 			@ApiParam(value = "视频场所编号", required = true) @RequestParam(value = "place")String place,
 			@ApiParam(value = "异常视频的url", required = true) @RequestParam(value = "url")String videoUrl,
 			@ApiParam(value = "报警抓图(（逗号），分隔拼接)", required = true) @RequestParam(value = "lookImg")String lookImg,
-			@ApiParam(value = "报警的类型状态1：未成年 2: 图像丢失 3：烟雾 4：火焰", required = true,defaultValue="1") @RequestParam(value = "typeStatus")String typeStatus) {
+			@ApiParam(value = "报警的类型状态1：未成年 2: 图像丢失 3：烟雾 4：火焰", required = true,defaultValue="1") @RequestParam(value = "typeStatus")String typeStatus,
+			@ApiParam(value = "报警编码") @RequestParam(value = "code", required = false)String alarmCode) {
 		Result r=new Result();
 		Date dt=null;
 		try {
@@ -99,25 +101,36 @@ public class VideoController{
 			r.setMsg("日期格式不对");
 		}
 		if(r.isSuccess()) {
+			BizAlarm bizAlarm=null;
+			if(StringUtils.isNotBlank(alarmCode)) {
+				bizAlarm=bizAlarmService.get(alarmCode);
+			}
+			if(bizAlarm==null){
+				bizAlarm=new BizAlarm();
+			}else {
+				bizAlarm.setIsNewRecord(false);
+			}
 			synchronized(place){
 				BizPlace bp=bizPlaceService.getBizPlace(place);
 				if(bp!=null) {
-					String[] alarmCodes=bp.getBizAlarms();
-					long max=0;
-					for(String c:alarmCodes) {
-						String temp=c.split("_")[1];
-						max=max<Long.parseLong(temp)?Long.parseLong(temp):max;
+					if(bizAlarm.getIsNewRecord()) {
+						String[] alarmCodes=bp.getBizAlarms();
+						long max=0;
+						for(String c:alarmCodes) {
+							String temp=c.split("_")[1];
+							max=max<Long.parseLong(temp)?Long.parseLong(temp):max;
+						}
+						bizAlarm.setAlarmCode(place+"_"+(max+1));
+						
+						bizAlarm.setCreateDate(new Date());
+						bizAlarm.setAlarmTime(dt);
+						bizAlarm.setDealWay("1");
 					}
-					BizAlarm bizAlarm=new BizAlarm();
-					bizAlarm.setAlarmCode(place+"_"+(max+1));
-					bizAlarm.setPlaceCode(place);
 					bizAlarm.setSign(sign);
-					bizAlarm.setAlarmTime(dt);
-					bizAlarm.setVideoUrl(videoUrl);
-					bizAlarm.setOosUrl(lookImg);
+					bizAlarm.setPlaceCode(place);
+					bizAlarm.setVideoUrl(StringTool.addEle(bizAlarm.getVideoUrl(), videoUrl));
+					bizAlarm.setOosUrl(StringTool.addEle(bizAlarm.getOosUrl(),lookImg));
 					bizAlarm.setAlarmType(typeStatus);
-					bizAlarm.setDealWay("1");
-					bizAlarm.setCreateDate(new Date());
 					bizAlarm.setUpdateDate(new Date());
 					try {
 						bizAlarmService.save(bizAlarm);
@@ -183,14 +196,23 @@ public class VideoController{
 						
 						if(!"add".equals(type)) {
 							BizAlarm bizAlarm=new BizAlarm();
-							bizAlarm.setAlarmCode(place+"_"+bizPlace.getBizAlarmList().size());
+
+							String[] alarmCodes=bizPlace.getBizAlarms();
+							long max=0;
+							for(String c:alarmCodes) {
+								String temp=c.split("_")[1];
+								max=max<Long.parseLong(temp)?Long.parseLong(temp):max;
+							}
+							bizAlarm.setAlarmCode(place+"_"+(max+1));
+							
 							bizAlarm.setPlaceCode(place);
 							bizAlarm.setAlarmTime(new Date());
 							bizAlarm.setVideoUrl(rtspUrl);
 //							bizAlarm.setSign(sign);
 //							bizAlarm.setOosUrl(lookImg);
-							bizAlarm.setAlarmType("1");
+//							bizAlarm.setAlarmType("1");
 							bizAlarm.setDealWay("1");
+							bizAlarm.setDealResult("掉线");
 							bizAlarm.setCreateDate(new Date());
 							bizAlarm.setUpdateDate(new Date());
 							bizAlarm.setCreateBy("API");
@@ -294,7 +316,7 @@ public class VideoController{
 		Result r=new Result();
 		try {
 			String andsql=MessageFormat.format("{0} {1} {2} ",
-					"0".equals(tradeType)?"":"and p.trade_type='"+tradeType+"'",
+					StringUtils.isBlank(tradeType)||"0".equals(tradeType)?"":"and p.trade_type='"+tradeType+"'",
 					StringUtils.isBlank(areaCode)?"":"and p.area like '"+removeZero(areaCode)+"%'",
 					StringUtils.isBlank(placeName)?"":"and (p.place_code like '%"+placeName+"%' or p.place_name like '%"+placeName+"%' )");
 			//TODO : 查询条件 ;签名;时间戳" 
@@ -393,8 +415,8 @@ public class VideoController{
 		if(r.isSuccess()) {
 			try {
 				String andsql=MessageFormat.format("{0} {1} {2} {3} {4}",
-						"0".equals(tradeType)?"":"and p.trade_type='"+tradeType+"'",
-						"0".equals(alarmType)?"":"and a.alarm_type='"+alarmType+"'",
+						StringUtils.isBlank(tradeType)||"0".equals(tradeType)?"":"and p.trade_type='"+tradeType+"'",
+						StringUtils.isBlank(alarmType)||"0".equals(alarmType)?"":"and a.alarm_type='"+alarmType+"'",
 						StringUtils.isBlank(areaCode)?"":"and p.area like '"+removeZero(areaCode)+"%'",
 						StringUtils.isBlank(placeName)?"":"and p.place_name like '%"+placeName+"%'",
 						StringUtils.isBlank(alarmTime)?"":"and date_format(a.alarm_time, '%Y-%m-%d')='"+alarmTime+"'");
@@ -440,9 +462,9 @@ public class VideoController{
 		if(r.isSuccess()) {
 			try {
 				String andsql=MessageFormat.format("{0} {1} {2} {3} ", 
-						"0".equals(tradeType)?"":"and p.trade_type='"+tradeType+"'",
+						StringUtils.isBlank(tradeType)||"0".equals(tradeType)?"":"and p.trade_type='"+tradeType+"'",
 						StringUtils.isBlank(areaCode)?"":"and p.area like '"+removeZero(areaCode)+"%'",
-						StringUtils.isBlank(dealWay)?"":"and a.deal_way='"+dealWay+"'",
+						StringUtils.isBlank(dealWay)||"0".equals(dealWay)?"":"and a.deal_way='"+dealWay+"'",
 						StringUtils.isBlank(beginTime)?"":"and a.alarm_time>=STR_TO_DATE('"+beginTime+"','%Y-%m-%d %H:%i:%s')");
 				//TODO :  签名; 时间戳
 				HashMap<String,Object> bp=new HashMap<String,Object>();
@@ -475,7 +497,7 @@ public class VideoController{
 		if(r.isSuccess()) {
 			try {
 				String andsql=MessageFormat.format(" {0} {1} ", 
-				StringUtils.isBlank(dealWay)?"":"and a.deal_way='"+dealWay+"'",
+				StringUtils.isBlank(dealWay)||"0".equals(dealWay)?"":"and a.deal_way='"+dealWay+"'",
 				StringUtils.isBlank(dealWay)?"":"and a.alarm_code='"+alarmCode+"'");
 				//TODO :  签名; 时间戳；用户编号
 				HashMap<String,Object> bp=new HashMap<String,Object>();
