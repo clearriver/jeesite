@@ -84,11 +84,11 @@ public class VideoController{
 	 * */
 	@RequestMapping(value = {"/video"},method = RequestMethod.POST,produces = MediaType.APPLICATION_JSON_UTF8_VALUE)
 	public ResponseEntity<Result> saveVideo(
-			@ApiParam(value = "签名", required = true) @RequestParam(value = "sign")String sign,
-			@ApiParam(value = "时间戳( yyyy-MM-dd HH:mm:ss)", required = true) @RequestParam(value = "noncestr")String noncestr,
-			@ApiParam(value = "视频场所编号", required = true) @RequestParam(value = "place")String place,
-			@ApiParam(value = "异常视频的url", required = true) @RequestParam(value = "url")String videoUrl,
-			@ApiParam(value = "报警抓图(（逗号），分隔拼接)", required = true) @RequestParam(value = "lookImg")String lookImg,
+			@ApiParam(value = "签名", required = true) @RequestParam(value = "sign", required = true)String sign,
+			@ApiParam(value = "时间戳( yyyy-MM-dd HH:mm:ss 2019-01-01 00:00:00)", required = true) @RequestParam(value = "noncestr", required = true)String noncestr,
+			@ApiParam(value = "视频场所编号", required = true) @RequestParam(value = "place", required = true)String place,
+			@ApiParam(value = "异常视频的url", required = false) @RequestParam(value = "url", required = false)String videoUrl,
+			@ApiParam(value = "报警抓图(（逗号），分隔拼接)", required = false) @RequestParam(value = "lookImg", required = false)String lookImg,
 			@ApiParam(value = "报警的类型状态1：未成年 2: 图像丢失 3：烟雾 4：火焰", required = true,defaultValue="1") @RequestParam(value = "typeStatus")String typeStatus,
 			@ApiParam(value = "报警编码") @RequestParam(value = "code", required = false)String alarmCode) {
 		Result r=new Result();
@@ -308,7 +308,7 @@ public class VideoController{
 	 * */
 	@RequestMapping(value = {"/places"},method = RequestMethod.GET,produces = MediaType.APPLICATION_JSON_UTF8_VALUE)
 	public ResponseEntity<Result> getPlaces(@ApiParam(value = "签名", required = true) @RequestParam(value = "sign")String sign,
-			@ApiParam(value = "时间戳( yyyy-MM-dd HH:mm:ss)", required = true) @RequestParam(value = "noncestr")String noncestr,
+			@ApiParam(value = "时间戳( yyyy-MM-dd HH:mm:ss 2019-01-01 00:00:00)", required = true) @RequestParam(value = "noncestr")String noncestr,
 			@ApiParam(value = "场所类型", required = true) @RequestParam("tradeType")String tradeType,
 			@ApiParam(value = "地区编码") @RequestParam(value ="areaCode", required = false)String areaCode,
 			@ApiParam(value = "场所名称或编号") @RequestParam(value ="placeName", required = false)String placeName,
@@ -394,7 +394,7 @@ public class VideoController{
 	 * */
 	@RequestMapping(value = {"/alarms"},method = RequestMethod.GET,produces = MediaType.APPLICATION_JSON_UTF8_VALUE)
 	public ResponseEntity<Result> getAlarms(@ApiParam(value = "签名", required = true) @RequestParam(value = "sign")String sign,
-			@ApiParam(value = "时间戳( yyyy-MM-dd HH:mm:ss)", required = true) @RequestParam(value = "noncestr")String noncestr,
+			@ApiParam(value = "时间戳( yyyy-MM-dd HH:mm:ss 2019-01-01 00:00:00)", required = true) @RequestParam(value = "noncestr")String noncestr,
 			@ApiParam(value = "场所类型", required = true) @RequestParam("tradeType")String tradeType,
 			@ApiParam(value = "报警类型", required = true) @RequestParam("alarmType")String alarmType,
 			@ApiParam(value = "地区编码") @RequestParam(value ="areaCode", required = false)String areaCode,
@@ -442,7 +442,7 @@ public class VideoController{
 	 * */
 	@RequestMapping(value = {"/alarmsno"},method = RequestMethod.GET,produces = MediaType.APPLICATION_JSON_UTF8_VALUE)
 	public ResponseEntity<Result> getAlarmsNodeal(@ApiParam(value = "签名", required = true) @RequestParam(value = "sign")String sign,
-			@ApiParam(value = "时间戳( yyyy-MM-dd HH:mm:ss)", required = true) @RequestParam(value = "noncestr")String noncestr,
+			@ApiParam(value = "时间戳( yyyy-MM-dd HH:mm:ss 2019-01-01 00:00:00)", required = true) @RequestParam(value = "noncestr")String noncestr,
 			@ApiParam(value = "场所类型", required = true) @RequestParam("tradeType")String tradeType,
 			@ApiParam(value = "地区编码") @RequestParam(value="areaCode", required = false)String areaCode,
 			@ApiParam(value = "起始时间(yyyy-MM-dd HH:mm:ss)") @RequestParam(value="beginTime", required = false)String beginTime,
@@ -488,7 +488,7 @@ public class VideoController{
 	 * */
 	@RequestMapping(value = {"/alarmse"},method = RequestMethod.GET,produces = MediaType.APPLICATION_JSON_UTF8_VALUE)
 	public ResponseEntity<Result> getAlarmsException(@ApiParam(value = "签名", required = true) @RequestParam(value = "sign")String sign,
-			@ApiParam(value = "时间戳( yyyy-MM-dd HH:mm:ss)", required = true) @RequestParam(value = "noncestr")String noncestr,
+			@ApiParam(value = "时间戳( yyyy-MM-dd HH:mm:ss 2019-01-01 00:00:00)", required = true) @RequestParam(value = "noncestr")String noncestr,
 			@ApiParam(value = "用户编号", required = true) @RequestParam("userCode")String userCode,
 			@ApiParam(value = "报警记录编号") @RequestParam(value ="alarmCode", required = false)String alarmCode,
 			@ApiParam(value = "处置方式") @RequestParam(value ="dealWay", required = false)String dealWay,
@@ -574,7 +574,7 @@ public class VideoController{
 	@RequestMapping(value = {"/alarm/{alarmCode}"},method = RequestMethod.POST,produces = MediaType.APPLICATION_JSON_UTF8_VALUE)
 	public ResponseEntity<Result> processAlarm(@PathVariable("alarmCode")String alarmCode,
 			@ApiParam(value = "签名", required = true) @RequestParam(value = "sign")String sign,
-			@ApiParam(value = "时间戳( yyyy-MM-dd HH:mm:ss)", required = true) @RequestParam(value = "noncestr")String noncestr,
+			@ApiParam(value = "时间戳( yyyy-MM-dd HH:mm:ss 2019-01-01 00:00:00)", required = true) @RequestParam(value = "noncestr")String noncestr,
 			@ApiParam(value = "处理结果(4:现场检查,3:分配检查,2:确认误报,1:未处置)") @RequestParam(value ="type", required = true)String type) {
 		Result r=new Result();
 		HashMap<String,Boolean> m=new HashMap<String,Boolean>();
@@ -611,7 +611,7 @@ public class VideoController{
 	 * */
 	@RequestMapping(value = {"/alarms/stat"},method = RequestMethod.GET,produces = MediaType.APPLICATION_JSON_UTF8_VALUE)
 	public ResponseEntity<Result> getAlarmsStat(@ApiParam(value = "签名", required = true) @RequestParam(value = "sign")String sign,
-			@ApiParam(value = "时间戳( yyyy-MM-dd HH:mm:ss)", required = true) @RequestParam(value = "noncestr")String noncestr,
+			@ApiParam(value = "时间戳( yyyy-MM-dd HH:mm:ss 2019-01-01 00:00:00)", required = true) @RequestParam(value = "noncestr")String noncestr,
 			@ApiParam(value = "行业类型") @RequestParam(value ="tradeType", required = false)String tradeType,
 			@ApiParam(value = "报警类型") @RequestParam(value ="alarmType", required = false)String alarmType,
 			@ApiParam(value = "地区编码") @RequestParam(value ="areaCode", required = false)String areaCode,
@@ -658,7 +658,7 @@ public class VideoController{
 	 * */
 	@RequestMapping(value = {"/alarms/groupstat"},method = RequestMethod.GET,produces = MediaType.APPLICATION_JSON_UTF8_VALUE)
 	public ResponseEntity<Result> getAlarmsByPlaceGroup(@ApiParam(value = "签名", required = true) @RequestParam(value = "sign")String sign,
-			@ApiParam(value = "时间戳( yyyy-MM-dd HH:mm:ss)", required = true) @RequestParam(value = "noncestr")String noncestr,
+			@ApiParam(value = "时间戳( yyyy-MM-dd HH:mm:ss 2019-01-01 00:00:00)", required = true) @RequestParam(value = "noncestr")String noncestr,
 			@ApiParam(value = "地区编码") @RequestParam(value="areaCode", required = false)String areaCode,
 			@ApiParam(value = "报警日期(yyyy-MM-dd HH:mm:ss)(如:2019-01-01 00:00:00)") @RequestParam(value="alarmTime", required = false)String alarmTime,
 			@ApiParam(value = "处置方式") @RequestParam(value="type", required = false)String dealWay,
