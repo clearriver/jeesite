@@ -90,7 +90,42 @@ public class BizAlarmService extends CrudService<BizAlarmDao, BizAlarm> {
 	}
 	
 	public List<Map<String, Object>> queryByTradeTypeGroup(Map<String,Object> param){
-		return dao.queryByTradeTypeGroup(param);
+		List<Map<String, Object>> r= dao.queryByTradeTypeGroup(param);
+		Config oss_host=ConfigUtils.getConfig("oss_host");
+		Config oss_inner_host=ConfigUtils.getConfig("oss_inner_host");
+		String oss_host_str=oss_host==null?"":oss_host.getConfigValue();
+		String oss_inner_host_str=oss_inner_host==null?"":oss_inner_host.getConfigValue();
+		if(StringUtils.isNotBlank(oss_host_str)&&StringUtils.isNotBlank(oss_inner_host_str)) {
+			String[] oss_inner_host_strs=oss_inner_host_str.split(",");
+			r.forEach(new Consumer<Map<String, Object>>() {
+				@Override
+				public void accept(Map<String, Object> t) {
+					if(t.containsKey("oosUrl")&&t.get("oosUrl")!=null) {
+						String oosUrl[]=t.get("oosUrl").toString().split(",");
+						for(int i=0;i<oosUrl.length;i++) {
+							for(int j=0;j<oss_inner_host_strs.length;j++) {
+								if(oosUrl[i].startsWith(oss_inner_host_strs[j])) {
+									oosUrl[i]=oss_host_str+oosUrl[i].substring(oss_inner_host_strs[j].length());
+								}
+							}
+						}
+						t.put("oosUrl", StringUtils.join(oosUrl,","));
+					}
+					if(t.containsKey("videoUrl")&&t.get("videoUrl")!=null) {
+						String videoUrl[]=t.get("videoUrl").toString().split(",");
+						for(int i=0;i<videoUrl.length;i++) {
+							for(int j=0;j<oss_inner_host_strs.length;j++) {
+								if(videoUrl[i].startsWith(oss_inner_host_strs[j])) {
+									videoUrl[i]=oss_host_str+videoUrl[i].substring(oss_inner_host_strs[j].length());
+								}
+							}
+						}
+						t.put("videoUrl", StringUtils.join(videoUrl,","));
+					}
+				}
+			});
+		}
+		return r;
 	}
 	public List<Map<String, Object>> countByTradeTypeGroup(Map<String,Object> param){
 		return dao.countByTradeTypeGroup(param);

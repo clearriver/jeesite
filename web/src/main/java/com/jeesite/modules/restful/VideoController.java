@@ -583,7 +583,7 @@ public class VideoController{
 		dicts.forEach(new Consumer<DictData>() {
 			@Override
 			public void accept(DictData t) {
-				if(t.getDictCode().equals(type)) {
+				if(t.getDictValue().equals(type)) {
 					m.put("exists",true);
 				}
 			}

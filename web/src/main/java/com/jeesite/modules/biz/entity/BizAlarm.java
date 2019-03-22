@@ -27,8 +27,8 @@ import com.jeesite.common.mybatis.annotation.Table;
 		@Column(name="video_url", attrName="videoUrl", label="报警视频及图像OSS存储URL地址"),
 		@Column(name="sign", attrName="sign", label="签名"),
 		@Column(name="deal_result", attrName="dealResult", label="处理结果"),
-		@Column(name="create_time", attrName="createTime", label="创建时间"),
-		@Column(name="update_time", attrName="updateTime", label="修改时间")
+//		@Column(name="create_time", attrName="createTime", label="创建时间"),
+//		@Column(name="update_time", attrName="updateTime", label="修改时间")
 	}, orderBy=""
 )
 public class BizAlarm extends DataEntity<BizAlarm> {
@@ -46,7 +46,9 @@ public class BizAlarm extends DataEntity<BizAlarm> {
 	public BizAlarm() {
 		this(null, null);
 	}
-
+	public BizAlarm(String alarmCode) {
+		this(null, alarmCode);
+	}
 	public BizAlarm(String placeCode, String alarmCode){
 		this.placeCode = placeCode;
 		this.alarmCode = alarmCode;
