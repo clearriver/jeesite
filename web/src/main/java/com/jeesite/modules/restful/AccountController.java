@@ -28,6 +28,7 @@ import com.jeesite.modules.sys.entity.Office;
 import com.jeesite.modules.sys.service.AreaService;
 import com.jeesite.modules.sys.service.EmpUserService;
 import com.jeesite.modules.sys.service.OfficeService;
+import com.jeesite.modules.sys.utils.ConfigUtils;
 
 import io.swagger.annotations.ApiParam;
 
@@ -70,6 +71,8 @@ public class AccountController {
 						(eu.getEmployee().getOffice()==null?null:eu.getEmployee().getOffice().getOfficeCode());
 					eur.put("office",officeCode);
 					eur.put("area",officeCode==null?null:(officeCode.length()>6?officeCode.substring(0,6):officeCode));
+					String baidu_ak=ConfigUtils.getConfig("sys.baidu.ak").getConfigValue();
+					eur.put("baiduapikey", baidu_ak);
 					r.setData(eur);
 				}
 			} catch (Exception e) {
