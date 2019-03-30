@@ -120,7 +120,11 @@ public class OfficeController extends BaseController {
 				}
 			});
 			String code=IdGen.nextCode(office.getParentCode(), siblings);
-			office.setViewCode(office.getParent().getViewCode() + code);
+			if(StringUtils.isBlank(code)) {
+				office.setViewCode(office.getViewCode());
+			}else {
+				office.setViewCode(office.getParent().getViewCode() + code);
+			}
 		}
 		model.addAttribute("office", office);
 		return "modules/sys/officeForm";

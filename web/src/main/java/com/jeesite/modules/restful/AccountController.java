@@ -23,12 +23,14 @@ import com.jeesite.modules.biz.entity.BizMediaServer;
 import com.jeesite.modules.biz.service.BizMediaServerService;
 import com.jeesite.modules.restful.dto.Result;
 import com.jeesite.modules.sys.entity.Area;
+import com.jeesite.modules.sys.entity.DictData;
 import com.jeesite.modules.sys.entity.EmpUser;
 import com.jeesite.modules.sys.entity.Office;
 import com.jeesite.modules.sys.service.AreaService;
 import com.jeesite.modules.sys.service.EmpUserService;
 import com.jeesite.modules.sys.service.OfficeService;
 import com.jeesite.modules.sys.utils.ConfigUtils;
+import com.jeesite.modules.sys.utils.DictUtils;
 
 import io.swagger.annotations.ApiParam;
 
@@ -242,5 +244,36 @@ public class AccountController {
 			code=removeZero(code.substring(0, code.length()-1));
 		}
 		return code;
+	}
+
+	/**
+	 * 3.	获取字典
+	 * */
+	@RequestMapping(value = {"/dict/{type}"},method = RequestMethod.GET,produces = MediaType.APPLICATION_JSON_UTF8_VALUE)
+	public ResponseEntity<Result> servers(@ApiParam(value = "签名", required = true) @RequestParam(value = "sign")String sign,
+			@ApiParam(value = "时间戳( yyyy-MM-dd HH:mm:ss)", required = true) @RequestParam(value = "noncestr")String noncestr,
+			@ApiParam(value = "字典类型", required = true) @PathVariable(value="type", required = true)String type) {
+		Result r=new Result();
+		try {
+			List<DictData> dicts=DictUtils.getDictList(type);
+			ArrayList<HashMap<String,Object>> list=new ArrayList<HashMap<String,Object>>();
+			dicts.forEach(new Consumer<DictData>() {
+				@Override
+				public void accept(DictData t) {
+					HashMap<String,Object> m=new HashMap<String,Object>();
+					m.put("dictLabel", t.getDictLabel());
+					m.put("dictValue", t.getDictValue());
+					m.put("duration", t.getExtend().getExtendI1());
+					list.add(m);
+				}
+			});
+			r.setData(list);
+		} catch (Exception e) {
+			r.setSuccess(false);
+			r.setErrCode(Result.ERR_CODE);
+			r.setMsg("查询失败");
+			e.printStackTrace();
+		}
+		return new ResponseEntity<Result>(r, HttpStatus.OK);
 	}
 }
