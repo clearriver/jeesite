@@ -224,7 +224,17 @@ $("#inputForm").validate({
 		}, "json");
     }
 });
-$("#cityName").change(getGeoCoordinates);
+$(document).ready(function(){
+	$("#areaDiv").attr("data-url-origin",$("#areaDiv").attr("data-url"));
+	$($.find("input[name='city']")).change(function(){
+		var dataurl=$("#areaDiv").attr("data-url-origin");
+		$("#areaDiv").attr("data-url",dataurl+"&root="+$($.find("input[name='city']")).val());
+		$($.find("input[name='area']")).val('');
+		$($.find("input[name='area.areaName']")).val('');
+		getGeoCoordinates();
+	});
+});
+//$("#cityName").change(getGeoCoordinates);
 $("#areaName").change(getGeoCoordinates);
 function getGeoCoordinates(){
 	var cn=$("#cityName").val();

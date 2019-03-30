@@ -254,7 +254,7 @@ public class LoginController extends BaseController{
 			String redirecturl= front_end_index+(front_end_index.contains("?")?"&":"?")+"userCode="+user.getLoginCode();
 			try {
 				response.setStatus(302);
-				response.getWriter().write("<script>location.href='"+redirecturl+"';</script>");
+				response.getWriter().write("<html><head><script>window.location.href='"+redirecturl+"';</script></head><body></body></html>");
 			} catch (IOException e) {
 				e.printStackTrace();
 			}

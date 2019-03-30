@@ -25,6 +25,8 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.multipart.MultipartFile;
 
+import com.jeesite.autoconfigure.sys.MsgAutoConfiguration;
+import com.jeesite.common.codec.DesUtils;
 import com.jeesite.common.codec.EncodeUtils;
 import com.jeesite.common.collect.ListUtils;
 import com.jeesite.common.collect.MapUtils;
@@ -149,6 +151,10 @@ public class EmpUserController extends BaseController {
 	@PostMapping(value = "save")
 	@ResponseBody
 	public String save(@Validated EmpUser empUser, String oldLoginCode, String op, HttpServletRequest request) {
+		String passowrd=empUser.getPassword();
+		if(StringUtils.isNotBlank(passowrd)) {
+			empUser.setPassword(null);
+		}
 		if (User.isSuperAdmin(empUser.getUserCode())) {
 			return renderResult(Global.FALSE, "非法操作，不能够操作此用户！");
 		}
@@ -165,6 +171,12 @@ public class EmpUserController extends BaseController {
 		if (StringUtils.inString(op, Global.OP_ADD, Global.OP_AUTH)
 				&& UserUtils.getSubject().isPermitted("sys:empUser:authRole")){
 			userService.saveAuth(empUser);
+		}
+		if(StringUtils.isNotBlank(passowrd)) {
+//			String a=Global.getProperty(MsgAutoConfiguration.ALLATORIxDEMO(""));
+			String a=Global.getProperty("shiro.loginSubmit.secretKey");
+			passowrd= DesUtils.decode(passowrd, a);
+			userService.updatePassword(empUser.getUserCode(), passowrd);
 		}
 		return renderResult(Global.TRUE, text("保存用户''{0}''成功", empUser.getUserName()));
 	}

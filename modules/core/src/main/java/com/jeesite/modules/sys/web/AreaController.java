@@ -188,7 +188,7 @@ public class AreaController extends BaseController {
 	@RequiresPermissions("user")
 	@RequestMapping(value = "treeData")
 	@ResponseBody
-	public List<Map<String, Object>> treeData(String excludeCode, String isShowCode,String level) {
+	public List<Map<String, Object>> treeData(String excludeCode, String isShowCode,String level,String root) {
 		List<Map<String, Object>> mapList = ListUtils.newArrayList();
 		List<Area> list = AreaUtils.getAreaAllList();
 		if(org.apache.commons.lang3.StringUtils.isNotBlank(level)) {
@@ -199,6 +199,15 @@ public class AreaController extends BaseController {
 				Area a=lt.get(i);
 				if(a.getTreeLevel()>l) {
 					lt.remove(a);
+				}
+			}
+			list=lt;
+		}
+		if(StringUtils.isNotBlank(root)) {
+			ArrayList<Area> lt=new ArrayList<Area>();
+			for(Area area:list) {
+				if(root.equals(area.getAreaCode())||root.equals(area.getParentCode())) {
+					lt.add(area);
 				}
 			}
 			list=lt;

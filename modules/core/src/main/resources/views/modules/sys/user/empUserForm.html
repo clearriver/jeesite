@@ -72,7 +72,8 @@
 							<label class="control-label col-sm-4" title="">
 								<span class="required ">*</span> ${text('密码')}：<i class="fa icon-question hide"></i></label>
 							<div class="col-sm-8">
-								<#form:input path="password" maxlength="128" readonly="${op=='auth'}" type="password" class="form-control required "/>
+								<#form:hidden name="password" value="${empUser.password}"/>
+								<#form:input id="password_disp"  maxlength="128" readonly="${op=='auth'}" onchange="syncEncodePassword(this.id,'password')" type="password" value="${empUser.password}" class="form-control required "/>
 							</div>
 						</div>
 					</div>
@@ -250,6 +251,8 @@
 	</div>
 </div>
 <% } %>
+<script>var secretKey = '${@Global.getConfig("shiro.loginSubmit.secretKey")}';</script>
+<script src="${ctxStatic}/common/des.js?${_version}"></script>
 <script>
 $("#inputForm").validate({
 	submitHandler: function(form){
@@ -292,4 +295,7 @@ var roleGrid = $("#roleGrid").dataGrid({
 	}
 });
 <% } %>
+function syncEncodePassword(password_disp,password){
+	$("#"+password).val(DesUtils.encode($("#"+password_disp).val(), secretKey))
+}
 </script>
