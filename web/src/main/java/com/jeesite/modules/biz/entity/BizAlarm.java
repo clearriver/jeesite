@@ -5,12 +5,18 @@ package com.jeesite.modules.biz.entity;
 
 import java.util.Date;
 
+import javax.validation.Valid;
+
 import org.hibernate.validator.constraints.Length;
 
 import com.fasterxml.jackson.annotation.JsonFormat;
 import com.jeesite.common.entity.DataEntity;
 import com.jeesite.common.mybatis.annotation.Column;
 import com.jeesite.common.mybatis.annotation.Table;
+import com.jeesite.common.utils.excel.annotation.ExcelField;
+import com.jeesite.common.utils.excel.annotation.ExcelFields;
+import com.jeesite.common.utils.excel.annotation.ExcelField.Align;
+import com.jeesite.common.utils.excel.fieldtype.AreaType;
 
 /**
  * 员工岗位Entity
@@ -31,6 +37,17 @@ import com.jeesite.common.mybatis.annotation.Table;
 //		@Column(name="update_time", attrName="updateTime", label="修改时间")
 	}, orderBy=""
 )
+@Valid
+@ExcelFields({
+	@ExcelField(title="编码", attrName="alarmCode", align=Align.CENTER, sort=10),
+	@ExcelField(title="许可证号或编号", attrName="placeCode", align=Align.CENTER, sort=20),
+	@ExcelField(title="报警类型", attrName="alarmType", align=Align.CENTER, sort=10,dictType="sys_biz_alarm_type"),
+	@ExcelField(title="报警时间", attrName="alarmTime", align = Align.CENTER, sort=30),
+	@ExcelField(title="处置方式", attrName="dealWay", align=Align.CENTER, sort=40, dictType="sys_biz_deal_way"),
+	@ExcelField(title="报警视频及图像OSS存储URL地址", attrName="oosUrl", align=Align.CENTER, sort=50),
+	@ExcelField(title="报警视频及图像OSS存储URL地址", attrName="videoUrl", align=Align.CENTER, sort=60),
+	@ExcelField(title="处理结果", attrName="dealResult", align=Align.CENTER, sort=80),
+})
 public class BizAlarm extends DataEntity<BizAlarm> {
 	
 	private static final long serialVersionUID = 1L;
