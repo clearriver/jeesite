@@ -252,13 +252,15 @@ public class LoginController extends BaseController{
 		if(StringUtils.isNotBlank(front_end_index)&&"0".equals(user.getMgrType())) {
 //			return REDIRECT + front_end_index+(front_end_index.contains("?")?"&":"?")+"userCode="+user.getLoginCode();
 			String redirecturl= front_end_index+(front_end_index.contains("?")?"&":"?")+"userCode="+user.getLoginCode();
-			try {
-				response.setStatus(302);
-				response.getWriter().write("<html><head><script>window.location.href='"+redirecturl+"';</script></head><body></body></html>");
-			} catch (IOException e) {
-				e.printStackTrace();
-			}
-			return null;
+//			try {
+//				response.setStatus(302);
+//				response.setContentType("text/html;charset=utf-8");
+//				response.getWriter().print("<html><head><script>window.location.href='"+redirecturl+"';</script></head><body></body></html>");
+//			} catch (IOException e) {
+//				e.printStackTrace();
+//			}
+			model.addAttribute("redirecturl", redirecturl);
+			return "modules/fe";
 		}
 		// 获取登录成功页面
 		String successUrl = Global.getProperty("shiro.successUrl");
