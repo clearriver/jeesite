@@ -24,11 +24,10 @@ import com.jeesite.common.lang.DateUtils;
 import com.jeesite.common.utils.excel.ExcelExport;
 import com.jeesite.common.web.BaseController;
 import com.jeesite.modules.biz.entity.BizAlarm;
-import com.jeesite.modules.biz.entity.BizPlace;
 import com.jeesite.modules.biz.service.BizAlarmService;
 
 /**
- * 流媒体服务器管理Controller
+ * 报警信息管理Controller
  * @author 长江
  * @version 2019-03-03
  */
@@ -86,7 +85,7 @@ public class BizAlarmController extends BaseController {
 	}
 
 	/**
-	 * 保存流媒体服务器管理
+	 * 保存报警信息管理
 	 */
 	@RequiresPermissions("biz:bizAlarm:edit")
 	@PostMapping(value = "save")
@@ -103,24 +102,15 @@ public class BizAlarmController extends BaseController {
 //			List<BizAlarm> list=bizAlarmService.findList(bizAlarm);
 //			BizAlarm e=list==null||list.size()==0?null:list.get(0);
 //			if(e!=null&&!id.equals(e.getId())) {
-//				return renderResult(Global.FALSE, text("保存服务器地址失败！该地区已经存在该类型的服务器"));
-//			}
-//		}
-//		if(r!=null) {
-//			r.setIsNewRecord(false);
-//			r.setOffice(bizAlarm.getOffice());
-//			r.setDomainName(bizAlarm.getDomainName());
-//			r.setServerIp(bizAlarm.getServerIp());
-//			r.setServerPort(bizAlarm.getServerPort());
 //			r.setServerType(bizAlarm.getServerType());
 //			bizAlarm=r;
 //		}
 //		bizAlarmService.save(bizAlarm);
-		return renderResult(Global.TRUE, text("保存服务器地址成功！"));
+		return renderResult(Global.TRUE, text("保存报警信息成功！"));
 	}
 	
 	/**
-	 * 停用流媒体服务器管理
+	 * 停用报警信息管理
 	 */
 	@RequiresPermissions("biz:bizAlarm:edit")
 	@RequestMapping(value = "disable")
@@ -128,11 +118,11 @@ public class BizAlarmController extends BaseController {
 	public String disable(BizAlarm bizAlarm) {
 		bizAlarm.setStatus(BizAlarm.STATUS_DISABLE);
 		bizAlarmService.updateStatus(bizAlarm);
-		return renderResult(Global.TRUE, text("停用流媒体服务器管理成功"));
+		return renderResult(Global.TRUE, text("停用报警信息管理成功"));
 	}
 	
 	/**
-	 * 启用流媒体服务器管理
+	 * 启用报警信息管理
 	 */
 	@RequiresPermissions("biz:bizAlarm:edit")
 	@RequestMapping(value = "enable")
@@ -140,18 +130,18 @@ public class BizAlarmController extends BaseController {
 	public String enable(BizAlarm bizAlarm) {
 		bizAlarm.setStatus(BizAlarm.STATUS_NORMAL);
 		bizAlarmService.updateStatus(bizAlarm);
-		return renderResult(Global.TRUE, text("启用流媒体服务器管理成功"));
+		return renderResult(Global.TRUE, text("启用报警信息管理成功"));
 	}
 	
 	/**
-	 * 删除流媒体服务器管理
+	 * 删除报警信息管理
 	 */
 	@RequiresPermissions("biz:bizAlarm:edit")
 	@RequestMapping(value = "delete")
 	@ResponseBody
 	public String delete(BizAlarm bizAlarm) {
 		bizAlarmService.delete(bizAlarm);
-		return renderResult(Global.TRUE, text("删除流媒体服务器管理成功！"));
+		return renderResult(Global.TRUE, text("删除报警信息成功！"));
 	}
 	/**
 	 * 导出场所数据
