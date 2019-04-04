@@ -35,7 +35,7 @@ import com.jeesite.common.utils.excel.fieldtype.AreaType;
 		@Column(name="deal_result", attrName="dealResult", label="处理结果"),
 //		@Column(name="create_time", attrName="createTime", label="创建时间"),
 //		@Column(name="update_time", attrName="updateTime", label="修改时间")
-	}, orderBy=""
+	}, orderBy="a.alarm_time DESC"
 )
 @Valid
 @ExcelFields({
