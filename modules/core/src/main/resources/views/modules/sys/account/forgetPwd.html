@@ -5,8 +5,13 @@
 <link rel="stylesheet" href="${ctxStatic}/modules/sys/sysLogin.css?${_version}">
 <div class="login-box" style="margin-top:4%">
 	<div class="login-logo">
+	<!-- 
 		<a href="${ctxPath}/account/forgetPwd"><b>${@Global.getConfig('productName')}</b>
 			<small>${@Global.getConfig('productVersion')}</small></a>
+			 -->	 
+		<a href="${ctx}/account/forgetPwd">
+		<img alt="${@Global.getConfig('productName')}" title="${@Global.getConfig('productName')}" src="${ctxStatic}/adminlte/img/logo-1.png">
+			</a>
 	</div>
 	<div class="login-box-body">
 		<form id="forgetForm" action="${ctxPath}/account/forgetPwd" method="post">
@@ -158,9 +163,14 @@
 			<div class="clearfix"></div>
 		</form>
 	</div>
+	<!-- 
 	<div class="login-copyright">
 		&copy; ${@DateUtils.getYear()} ${@Global.getConfig('productName')} - Powered By <a
 			href="http://jeesite.com">JeeSite ${@Global.getProperty('jeesiteVersion')}</a>
+	</div>
+	 -->
+	<div class="login-copyright" style="color:white">
+		&copy; ${@DateUtils.getYear()} ${@Global.getConfig('productName')}
 	</div>
 </div>
 <% } %>
