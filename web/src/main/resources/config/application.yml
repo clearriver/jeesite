@@ -20,7 +20,7 @@ demoMode: false
 
 server:
 
-  port: 9000
+  port: 9001
   servlet:
     context-path: /js
   tomcat:
@@ -45,7 +45,8 @@ jdbc:
 #  username: nxwh
 #  password: "12318#nxwh"
 
-  url: jdbc:mysql://rm-a7l8b1a897v4206bf.mysql.rds.zw-ops.nxcloud.com.cn:3306/nxwh01?useSSL=false&useUnicode=true&characterEncoding=utf-8&zeroDateTimeBehavior=convertToNull
+  url: jdbc:mysql://218.95.183.32:9006/nxwh01?useSSL=false&useUnicode=true&characterEncoding=utf-8&zeroDateTimeBehavior=convertToNull
+#  url: jdbc:mysql://rm-a7l8b1a897v4206bf.mysql.rds.zw-ops.nxcloud.com.cn:3306/nxwh01?useSSL=false&useUnicode=true&characterEncoding=utf-8&zeroDateTimeBehavior=convertToNull
   username: nxwh
   password: "12318#nxwh"
 

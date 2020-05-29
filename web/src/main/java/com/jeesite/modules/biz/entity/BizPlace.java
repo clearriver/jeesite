@@ -77,6 +77,8 @@ public class BizPlace extends DataEntity<BizPlace> {
 	private String representative;		// 法定代表人（主要负责人）
 	private String phone;		// 移动电话
 	private String businessStatus;		// 营业状态
+	private boolean cyberOnline;
+	private boolean cyberInstall;
 	
 	private List<BizRtspUrl> bizRtspUrlList= ListUtils.newArrayList();		// 实时视频流RTSP地址
 	public List<BizRtspUrl> getBizRtspUrlList() {
@@ -215,4 +217,17 @@ public class BizPlace extends DataEntity<BizPlace> {
 	public void setBusinessStatus(String businessStatus) {
 		this.businessStatus = businessStatus;
 	}
+	
+    public boolean isCyberOnline() {
+      return cyberOnline;
+    }
+    public void setCyberOnline(boolean cyberOnline) {
+      this.cyberOnline = cyberOnline;
+    }
+    public boolean isCyberInstall() {
+      return cyberInstall;
+    }
+    public void setCyberInstall(boolean cyberInstall) {
+      this.cyberInstall = cyberInstall;
+    }
 }

@@ -147,8 +147,14 @@ $('#dataGrid').dataGrid({
 		*/
 		{header:'${text("法定代表人")}', name:'representative', index:'a.representative', width:150, align:"left"},
 		{header:'${text("移动电话")}', name:'phone', index:'a.phone', width:150, align:"left"},
-		{header:'${text("营业状态")}', name:'businessStatus', index:'a.business_status', width:150, align:"left",formatter: function(val, obj, row, act){
+		{header:'${text("营业状态")}', name:'businessStatus', index:'a.business_status', width:100, align:"center",formatter: function(val, obj, row, act){
 			return js.getDictLabel(${@DictUtils.getDictListJson('sys_biz_status')}, val, '', true);
+		}},
+		{header:'${text("是否在线")}', name:'cyberOnline', index:'a.cyberOnline', width:100, align:"center",formatter: function(val, obj, row, act){
+			return val?'是':'否';
+		}},
+		{header:'${text("是否安装")}', name:'cyberInstall', index:'a.cyberInstall', width:100, align:"center",formatter: function(val, obj, row, act){
+			return val?'是':'否';
 		}},
 		/*
 		{header:'${text("实时视频流RTSP地址")}', name:'rtspUrl', index:'a.rtsp_url', width:150, align:"left"},
