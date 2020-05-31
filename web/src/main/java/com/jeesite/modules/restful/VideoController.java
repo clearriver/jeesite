@@ -33,6 +33,7 @@ import com.jeesite.common.collect.ListUtils;
 import com.jeesite.common.mapper.JsonMapper;
 import com.jeesite.modules.Constants;
 import com.jeesite.modules.biz.entity.BizAlarm;
+import com.jeesite.modules.biz.entity.BizCyber;
 import com.jeesite.modules.biz.entity.BizMediaServer;
 import com.jeesite.modules.biz.entity.BizPlace;
 import com.jeesite.modules.biz.entity.BizRtspUrl;
@@ -40,6 +41,7 @@ import com.jeesite.modules.biz.service.BizAlarmService;
 import com.jeesite.modules.biz.service.BizMediaServerService;
 import com.jeesite.modules.biz.service.BizPlaceService;
 import com.jeesite.modules.biz.service.BizRtspUrlService;
+import com.jeesite.modules.biz.service.CyberService;
 import com.jeesite.modules.restful.dto.Result;
 import com.jeesite.modules.sys.entity.DictData;
 import com.jeesite.modules.sys.service.AreaService;
@@ -58,6 +60,8 @@ import io.swagger.annotations.ApiParam;
 @RestController("VideoController-v1")
 @RequestMapping(value = "/api/restful")
 public class VideoController{
+    @Autowired
+    private CyberService cyberService;
 	@Autowired
 	private RestTemplate restTemplate;
 	@Autowired
@@ -113,6 +117,11 @@ public class VideoController{
 			synchronized(place){
 				BizPlace bp=bizPlaceService.getBizPlace(place);
 				if(bp!=null) {
+			        if(bp!=null&&bp.getPlaceCode()!=null) {
+			          BizCyber cyber=cyberService.getCybers().get(bp.getPlaceCode());
+			          bp.setCyberInstall(cyber!=null&&cyber.isInstall());
+			          bp.setCyberOnline(cyber!=null&&cyber.isOnline());
+			        }
 					if(bizAlarm.getIsNewRecord()) {
 						String[] alarmCodes=bp.getBizAlarms();
 						long max=0;
@@ -291,6 +300,12 @@ public class VideoController{
 						list.remove(ba);
 					}
 				}
+
+                if(bp!=null&&bp.getPlaceCode()!=null) {
+                  BizCyber cyber=cyberService.getCybers().get(bp.getPlaceCode());
+                  bp.setCyberInstall(cyber!=null&&cyber.isInstall());
+                  bp.setCyberOnline(cyber!=null&&cyber.isOnline());
+                }
 			} catch (Exception e) {
 				e.printStackTrace();
 			}

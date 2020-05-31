@@ -7,6 +7,7 @@ import lombok.Data;
 @Data
 public class BizCyber {
   private String guid;
+  private String version;
   private List<Address> addr;
   @Data
   public static class Address{

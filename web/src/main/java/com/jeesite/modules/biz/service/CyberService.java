@@ -1,6 +1,7 @@
 package com.jeesite.modules.biz.service;
 
 import java.lang.reflect.Type;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
@@ -22,11 +23,16 @@ public class CyberService {
   @Autowired
   private RestTemplate restTemplate;
   public Map<String,BizCyber> getCybers(){
-    String cyberUrl=ConfigUtils.getConfig("sys.cyber.url").getConfigValue();
-    cyberUrl=StringUtils.isBlank(cyberUrl)?"http://gs.nxwh.org/cyber":cyberUrl;
-    RequestEntity<?> request = RequestEntity.get(UriComponentsBuilder.fromUriString(cyberUrl).build().toUri()).accept(MediaType.APPLICATION_JSON).build();
-    Type type = new TypeToken<List<BizCyber>>() {}.getType();
-    List<BizCyber> response = gson.fromJson(restTemplate.exchange(request,String.class).getBody(),type);
-    return response.stream().collect(Collectors.toMap(e->e.getGuid(),e->e));
+    try {
+      String cyberUrl=ConfigUtils.getConfig("sys.cyber.url").getConfigValue();
+      cyberUrl=StringUtils.isBlank(cyberUrl)?"http://gs.nxwh.org/cyber":cyberUrl;
+      RequestEntity<?> request = RequestEntity.get(UriComponentsBuilder.fromUriString(cyberUrl).build().toUri()).accept(MediaType.APPLICATION_JSON).build();
+      Type type = new TypeToken<List<BizCyber>>() {}.getType();
+      List<BizCyber> response = gson.fromJson(restTemplate.exchange(request,String.class).getBody(),type);
+      return response.stream().filter(e->StringUtils.isNotBlank(e.getGuid())).collect(Collectors.toMap(e->e.getGuid(),e->e,(k1,k2)->k2));
+    }catch (Exception e) {
+      e.printStackTrace();
+    }
+    return new HashMap<>();
   }
 }
