@@ -20,6 +20,8 @@ import com.jeesite.modules.biz.entity.BizRtspUrl;
 @MyBatisDao
 public interface BizPlaceDao extends CrudDao<BizPlace> {
 	public List<Map<String, Object>> queryMap(Map<String,Object> param);
+    public List<Map<String, Object>> queryList(Map<String,Object> param);
+    public List<Map<String, Object>> queryCount(Map<String,Object> param);
 	public List<BizRtspUrl> queryRtspUrl(Map<String,Object> param);
 	public List<BizAlarm> queryBizAlarm(Map<String,Object> param);
 }

@@ -11,6 +11,22 @@
 		</where>
 		ORDER BY ${sqlMap.order.toSql()}
 	</select> -->
+	<select id="queryCount" resultType="java.util.HashMap" parameterType="hashmap">
+		SELECT count(p.place_code) count   
+		FROM ${_prefix}biz_place p
+		<where>
+			1=1 ${andsql} 
+		</where>
+	</select>
+	<select id="queryList" resultType="java.util.HashMap" parameterType="hashmap">
+		SELECT p.place_code placeCode,p.place_name placeName,p.trade_type tradeType,p.city city,p.area area,p.street street,p.geo_coordinates geoCoordinates,
+		p.representative representative,p.phone phone,p.business_status businessStatus   
+		FROM ${_prefix}biz_place p
+		<where>
+			1=1 ${andsql} 
+		</where>
+		ORDER BY p.place_code ${maxnum} 
+	</select>
 	<select id="queryMap" resultType="java.util.HashMap" parameterType="hashmap">
 		SELECT p.place_code placeCode,p.place_name placeName,p.trade_type tradeType,p.city city,p.area area,p.street street,p.geo_coordinates geoCoordinates,
 		p.representative representative,p.phone phone,p.business_status businessStatus   

@@ -3,10 +3,15 @@
  */
 package com.jeesite.modules.biz.web;
 
+import java.text.MessageFormat;
+import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.stream.Collectors;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
+import org.apache.commons.lang3.StringUtils;
 import org.apache.shiro.authz.annotation.RequiresPermissions;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
@@ -21,6 +26,7 @@ import com.jeesite.common.collect.ListUtils;
 import com.jeesite.common.config.Global;
 import com.jeesite.common.entity.Page;
 import com.jeesite.common.lang.DateUtils;
+import com.jeesite.common.mybatis.mapper.query.QueryType;
 import com.jeesite.common.utils.excel.ExcelExport;
 import com.jeesite.common.utils.excel.annotation.ExcelField.Type;
 import com.jeesite.common.web.BaseController;
@@ -28,9 +34,17 @@ import com.jeesite.modules.biz.entity.BizCyber;
 import com.jeesite.modules.biz.entity.BizPlace;
 import com.jeesite.modules.biz.service.BizPlaceService;
 import com.jeesite.modules.biz.service.CyberService;
+import com.jeesite.modules.sys.entity.Area;
 import com.jeesite.modules.sys.entity.Config;
+import com.jeesite.modules.sys.entity.EmpUser;
+import com.jeesite.modules.sys.entity.Employee;
+import com.jeesite.modules.sys.entity.Office;
 import com.jeesite.modules.sys.service.ConfigService;
+import com.jeesite.modules.sys.service.EmpUserService;
+import com.jeesite.modules.sys.service.OfficeService;
+import com.jeesite.modules.sys.utils.AreaUtils;
 import com.jeesite.modules.sys.utils.ConfigUtils;
+import com.jeesite.modules.sys.utils.UserUtils;
 
 /**
  * 场所表Controller
@@ -46,6 +60,11 @@ public class BizPlaceController extends BaseController {
 	private BizPlaceService bizPlaceService;
 	@Autowired
 	private ConfigService configService;
+    @Autowired
+    private EmpUserService empUserService;
+    @Autowired
+    private OfficeService officeService;
+	
 	/**
 	 * 获取数据
 	 */
@@ -77,8 +96,55 @@ public class BizPlaceController extends BaseController {
 	@RequestMapping(value = "listData")
 	@ResponseBody
 	public Page<BizPlace> listData(BizPlace bizPlace, HttpServletRequest request, HttpServletResponse response) {
-		bizPlace.setPage(new Page<>(request, response));
-		Page<BizPlace> page = bizPlaceService.findPage(bizPlace);
+	    Page<BizPlace> page = null;
+	    EmpUser empUser=empUserService.get(UserUtils.getUser().getUserCode());
+	    if(empUser==null) {
+	      bizPlace.setPage(new Page<>(request, response));
+	      page = bizPlaceService.findPage(bizPlace);
+	    }else {
+	      page = new Page<>(request, response);
+	      
+	      Employee employee = empUser.getEmployee();
+          String officeCode=employee.getOffice().getOfficeCode();
+          Office where = new Office();
+          where.getSqlMap().getWhere().andBracket("office_code", QueryType.EQ, officeCode, 1)
+                .or("parent_codes", QueryType.LIKE,officeCode, 2).endBracket();
+          List<Office> offices=officeService.findList(where);
+          List<String> officeCodes=offices.stream().map(e->e.getOfficeCode()).collect(Collectors.toList());
+          String codes=StringUtils.join(officeCodes, "','");
+          
+          String andsql=MessageFormat.format("{0} {1} {2} {3}",
+              StringUtils.isBlank(bizPlace.getPlaceName())?"":"and p.place_name like '%"+bizPlace.getPlaceName()+"%'",
+              StringUtils.isBlank(bizPlace.getTradeType())?"":"and p.trade_type = '"+bizPlace.getTradeType()+"'",
+              StringUtils.isBlank(codes)?"":"and (p.city in('"+codes+"') or p.area in('"+codes+"'))",
+              StringUtils.isBlank(bizPlace.getBusinessStatus())?"":"and p.business_status = '"+bizPlace.getTradeType()+"'"
+          );
+          
+          HashMap<String,Object> param=new HashMap<String,Object>();
+          param.put("andsql",andsql);
+//        select * from table limit (pageNo-1)*pageSize, pageSize;
+          param.put("maxnum", "limit "+((page.getPageNo()-1)*page.getPageSize())+","+page.getPageSize());
+          
+          List<Map<String, Object>> count=bizPlaceService.queryCount(param);
+          List<Map<String, Object>> list=bizPlaceService.queryList(param);
+          ArrayList<BizPlace> l=new ArrayList<BizPlace>();
+          list.forEach(e->{
+            BizPlace bp=new BizPlace();
+            bp.setPlaceCode(String.valueOf(e.get("placeCode")));
+            bp.setPlaceName(String.valueOf(e.get("placeName")));
+            bp.setTradeType(String.valueOf(e.get("tradeType")));
+            bp.setCity(AreaUtils.getArea(String.valueOf(e.get("city"))));
+            bp.setArea(AreaUtils.getArea(String.valueOf(e.get("area"))));
+            bp.setStreet(String.valueOf(e.get("street")));
+            bp.setGeoCoordinates(String.valueOf(e.get("geoCoordinates")));
+            bp.setRepresentative(String.valueOf(e.get("representative")));
+            bp.setPhone(String.valueOf(e.get("phone")));
+            bp.setBusinessStatus(String.valueOf(e.get("businessStatus")));
+            l.add(bp);
+          });
+          page.setCount(Long.valueOf(count.get(0).get("count").toString()));
+          page.setList(l);
+	    }
 		Map<String,BizCyber> cyberMap=cyberService.getCybers();
 	    page.getList().forEach(bp->{
 	      BizCyber cyber=cyberMap.get(bp.getPlaceCode());

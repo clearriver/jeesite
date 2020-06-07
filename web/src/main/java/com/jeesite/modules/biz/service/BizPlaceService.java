@@ -133,6 +133,12 @@ public class BizPlaceService extends CrudService<BizPlaceDao, BizPlace> {
 	public List<Map<String, Object>> queryMap(Map<String,Object> param) {
 		return this.dao.queryMap(param);
 	}
+	public List<Map<String, Object>> queryList(Map<String,Object> param) {
+	    return this.dao.queryList(param);
+	}
+    public List<Map<String, Object>> queryCount(Map<String,Object> param) {
+      return this.dao.queryCount(param);
+    }
 	/**
 	 * 保存数据（插入或更新）
 	 * @param bizPlace
