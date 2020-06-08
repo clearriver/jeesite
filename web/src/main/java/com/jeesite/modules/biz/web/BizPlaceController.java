@@ -106,11 +106,12 @@ public class BizPlaceController extends BaseController {
 	      
 	      Employee employee = empUser.getEmployee();
           String officeCode=employee.getOffice().getOfficeCode();
+          officeCode=officeCode==null||officeCode.length()<=6?officeCode:officeCode.substring(0,6);
           Office where = new Office();
           where.getSqlMap().getWhere().andBracket("office_code", QueryType.EQ, officeCode, 1)
                 .or("parent_codes", QueryType.LIKE,officeCode, 2).endBracket();
           List<Office> offices=officeService.findList(where);
-          List<String> officeCodes=offices.stream().map(e->e.getOfficeCode()).collect(Collectors.toList());
+          List<String> officeCodes=offices.stream().map(e->e.getOfficeCode()==null||e.getOfficeCode().length()<=6?e.getOfficeCode():e.getOfficeCode().substring(0,6)).collect(Collectors.toList());
           String codes=StringUtils.join(officeCodes, "','");
           
           String andsql=MessageFormat.format("{0} {1} {2} {3}",
