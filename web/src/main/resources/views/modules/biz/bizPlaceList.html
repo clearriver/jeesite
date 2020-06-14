@@ -150,9 +150,11 @@ $('#dataGrid').dataGrid({
 		{header:'${text("营业状态")}', name:'businessStatus', index:'a.business_status', width:100, align:"center",formatter: function(val, obj, row, act){
 			return js.getDictLabel(${@DictUtils.getDictListJson('sys_biz_status')}, val, '', true);
 		}},
+		/*
 		{header:'${text("是否在线")}', name:'cyberOnline', index:'a.cyberOnline', width:100, align:"center",formatter: function(val, obj, row, act){
 			return val?'是':'否';
 		}},
+		*/
 		{header:'${text("是否安装")}', name:'cyberInstall', index:'a.cyberInstall', width:100, align:"center",formatter: function(val, obj, row, act){
 			return val?'是':'否';
 		}},

@@ -11,6 +11,7 @@ import java.util.Map;
 import java.util.stream.Collectors;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
+import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.shiro.authz.annotation.RequiresPermissions;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -112,39 +113,52 @@ public class BizPlaceController extends BaseController {
                 .or("parent_codes", QueryType.LIKE,officeCode, 2).endBracket();
           List<Office> offices=officeService.findList(where);
           List<String> officeCodes=offices.stream().map(e->e.getOfficeCode()==null||e.getOfficeCode().length()<=6?e.getOfficeCode():e.getOfficeCode().substring(0,6)).collect(Collectors.toList());
-          String codes=StringUtils.join(officeCodes, "','");
-          
-          String andsql=MessageFormat.format("{0} {1} {2} {3}",
-              StringUtils.isBlank(bizPlace.getPlaceName())?"":"and p.place_name like '%"+bizPlace.getPlaceName()+"%'",
-              StringUtils.isBlank(bizPlace.getTradeType())?"":"and p.trade_type = '"+bizPlace.getTradeType()+"'",
-              StringUtils.isBlank(codes)?"":"and (p.city in('"+codes+"') or p.area in('"+codes+"'))",
-              StringUtils.isBlank(bizPlace.getBusinessStatus())?"":"and p.business_status = '"+bizPlace.getTradeType()+"'"
-          );
-          
-          HashMap<String,Object> param=new HashMap<String,Object>();
-          param.put("andsql",andsql);
-//        select * from table limit (pageNo-1)*pageSize, pageSize;
-          param.put("maxnum", "limit "+((page.getPageNo()-1)*page.getPageSize())+","+page.getPageSize());
-          
-          List<Map<String, Object>> count=bizPlaceService.queryCount(param);
-          List<Map<String, Object>> list=bizPlaceService.queryList(param);
-          ArrayList<BizPlace> l=new ArrayList<BizPlace>();
-          list.forEach(e->{
-            BizPlace bp=new BizPlace();
-            bp.setPlaceCode(String.valueOf(e.get("placeCode")));
-            bp.setPlaceName(String.valueOf(e.get("placeName")));
-            bp.setTradeType(String.valueOf(e.get("tradeType")));
-            bp.setCity(AreaUtils.getArea(String.valueOf(e.get("city"))));
-            bp.setArea(AreaUtils.getArea(String.valueOf(e.get("area"))));
-            bp.setStreet(String.valueOf(e.get("street")));
-            bp.setGeoCoordinates(String.valueOf(e.get("geoCoordinates")));
-            bp.setRepresentative(String.valueOf(e.get("representative")));
-            bp.setPhone(String.valueOf(e.get("phone")));
-            bp.setBusinessStatus(String.valueOf(e.get("businessStatus")));
-            l.add(bp);
-          });
-          page.setCount(Long.valueOf(count.get(0).get("count").toString()));
-          page.setList(l);
+          String city=bizPlace.getCity()==null?null:bizPlace.getCity().getAreaCode();
+          String area=bizPlace.getArea()==null?null:bizPlace.getArea().getAreaCode();
+          if(StringUtils.isNotBlank(city)) {
+            final String tcity=city.substring(0,4);
+            officeCodes=officeCodes.stream().filter(e->e.startsWith(tcity)).collect(Collectors.toList());
+          }
+          if(StringUtils.isNotBlank(area)) {
+            officeCodes=officeCodes.stream().filter(e->e.startsWith(area)).collect(Collectors.toList());
+          }
+          if(CollectionUtils.isEmpty(officeCodes)) {
+            page.setCount(0);
+            page.setList(new ArrayList<>());
+          }else {
+            String codes=StringUtils.join(officeCodes, "','");
+            String andsql=MessageFormat.format("{0} {1} {2} {3}",
+                StringUtils.isBlank(bizPlace.getPlaceName())?"":"and p.place_name like '%"+bizPlace.getPlaceName()+"%'",
+                StringUtils.isBlank(bizPlace.getTradeType())?"":"and p.trade_type = '"+bizPlace.getTradeType()+"'",
+                StringUtils.isBlank(codes)?"":"and (p.city in('"+codes+"') or p.area in('"+codes+"'))",
+                StringUtils.isBlank(bizPlace.getBusinessStatus())?"":"and p.business_status = '"+bizPlace.getBusinessStatus()+"'"
+            );
+            
+            HashMap<String,Object> param=new HashMap<String,Object>();
+            param.put("andsql",andsql);
+  //        select * from table limit (pageNo-1)*pageSize, pageSize;
+            param.put("maxnum", "limit "+((page.getPageNo()-1)*page.getPageSize())+","+page.getPageSize());
+            
+            List<Map<String, Object>> count=bizPlaceService.queryCount(param);
+            List<Map<String, Object>> list=bizPlaceService.queryList(param);
+            ArrayList<BizPlace> l=new ArrayList<BizPlace>();
+            list.forEach(e->{
+              BizPlace bp=new BizPlace();
+              bp.setPlaceCode(String.valueOf(e.get("placeCode")));
+              bp.setPlaceName(String.valueOf(e.get("placeName")));
+              bp.setTradeType(String.valueOf(e.get("tradeType")));
+              bp.setCity(AreaUtils.getArea(String.valueOf(e.get("city"))));
+              bp.setArea(AreaUtils.getArea(String.valueOf(e.get("area"))));
+              bp.setStreet(String.valueOf(e.get("street")));
+              bp.setGeoCoordinates(String.valueOf(e.get("geoCoordinates")));
+              bp.setRepresentative(String.valueOf(e.get("representative")));
+              bp.setPhone(String.valueOf(e.get("phone")));
+              bp.setBusinessStatus(String.valueOf(e.get("businessStatus")));
+              l.add(bp);
+            });
+            page.setCount(Long.valueOf(count.get(0).get("count").toString()));
+            page.setList(l);
+          }
 	    }
 		Map<String,BizCyber> cyberMap=cyberService.getCybers();
 	    page.getList().forEach(bp->{
